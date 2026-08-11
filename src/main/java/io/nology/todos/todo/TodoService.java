@@ -3,6 +3,7 @@ package io.nology.todos.todo;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import io.nology.todos.category.CategoryService;
@@ -17,10 +18,12 @@ public class TodoService {
     
     private final TodoRepository repo;
     private final CategoryService categoryService;
+    private final ModelMapper mapper;
 
-    public TodoService(TodoRepository repo, CategoryService categoryService) {
+    public TodoService(TodoRepository repo, CategoryService categoryService, ModelMapper mapper) {
         this.repo = repo;
         this.categoryService = categoryService;
+        this.mapper = mapper;
     }
 
     public List<Todo> findAll() {
@@ -32,15 +35,16 @@ public class TodoService {
     }
 
     public Todo create(CreateTodoRequest data) {
-        Todo createdTodo = new Todo();
-        createdTodo.setName(data.getName());
         Optional<Category> returnedCategory = this.categoryService.findById(data.getCategoryId());
         if(returnedCategory.isEmpty()) {
             throw new UnprocessableContentException("No category with id " + data.getCategoryId());
         }
-        createdTodo.setCategory(returnedCategory.get());
+        Category category = returnedCategory.get();
+        Todo createdTodo = this.mapper.map(data, Todo.class);
+        createdTodo.setCategory(category);
         this.repo.saveAndFlush(createdTodo);
         return createdTodo;
+
     }
 
     public Optional<Todo> updateById(Long id, UpdateTodoRequest data) {
@@ -49,9 +53,10 @@ public class TodoService {
             return result;
         }
         Todo foundTodo = result.get();
-        if(data.getName() != null) {
-            foundTodo.setName(data.getName().trim());
-        }
+
+        this.mapper.map(data, foundTodo);
+
+        
         if(data.getCategoryId() != null) {
             Optional<Category> returnedCategory = this.categoryService.findById(data.getCategoryId());
             if(returnedCategory.isEmpty()) {
