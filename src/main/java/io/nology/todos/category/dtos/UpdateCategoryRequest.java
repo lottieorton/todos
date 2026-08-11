@@ -1,9 +1,9 @@
 package io.nology.todos.category.dtos;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 public class UpdateCategoryRequest {
-    @NotBlank(message = "Category name cannot be empty")
+    @Pattern(regexp = ".*\\S.*", message = "Category name cannot be empty")
     private String name;
 
     public UpdateCategoryRequest() {
