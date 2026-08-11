@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import io.nology.todos.common.exceptions.NotFoundException;
+import io.nology.todos.common.exceptions.UnprocessableContentException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -31,6 +32,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnprocessableContentException.class)
+    public ResponseEntity<String> handleUnprocessableContentException(UnprocessableContentException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNPROCESSABLE_CONTENT);
     }
 
 }
