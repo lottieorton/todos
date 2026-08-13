@@ -35,13 +35,9 @@ public class TodoService {
     }
 
     public Todo create(CreateTodoRequest data) {
-        Optional<Category> returnedCategory = this.categoryService.findById(data.getCategoryId());
-        if(returnedCategory.isEmpty()) {
-            throw new UnprocessableContentException("No category with id " + data.getCategoryId());
-        }
-        Category category = returnedCategory.get();
+        Category foundCategory = resolveCategory(data.getCategoryId());
         Todo createdTodo = this.mapper.map(data, Todo.class);
-        createdTodo.setCategory(category);
+        createdTodo.setCategory(foundCategory);
         this.repo.saveAndFlush(createdTodo);
         return createdTodo;
 
@@ -53,16 +49,10 @@ public class TodoService {
             return result;
         }
         Todo foundTodo = result.get();
-
         this.mapper.map(data, foundTodo);
-
-        
         if(data.getCategoryId() != null) {
-            Optional<Category> returnedCategory = this.categoryService.findById(data.getCategoryId());
-            if(returnedCategory.isEmpty()) {
-                throw new UnprocessableContentException("No category with id " + data.getCategoryId());
-            }
-            foundTodo.setCategory(returnedCategory.get());
+            Category foundCategory = resolveCategory(data.getCategoryId());
+            foundTodo.setCategory(foundCategory);
         }
         this.repo.saveAndFlush(foundTodo);
         return Optional.of(foundTodo);
@@ -75,6 +65,14 @@ public class TodoService {
         }
         this.repo.delete(result.get());
         return true;
+    }
+
+    private Category resolveCategory(Long id) {
+        Optional<Category> returnedCategory = this.categoryService.findById(id);
+        if(returnedCategory.isEmpty()) {
+            throw new UnprocessableContentException("No category with id " + id);
+        }
+        return returnedCategory.get();
     }
 
 }
