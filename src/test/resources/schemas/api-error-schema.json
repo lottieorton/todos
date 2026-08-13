@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ErrorResponse",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the error occurred."
+    },
+    "status": {
+      "type": "integer",
+      "description": "HTTP status code."
+    },
+    "error": {
+      "type": "string",
+      "description": "HTTP status text."
+    },
+    "message": {
+      "type": "string",
+      "description": "A detailed description of the error."
+    },
+    "path": {
+      "type": "string",
+      "description": "The request path that triggered the error."
+    }
+  },
+  "required": ["timestamp", "status", "error", "message", "path"],
+  "additionalProperties": false
+}
