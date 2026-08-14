@@ -1,5 +1,6 @@
 @use "../../sass/variables/colors" as c;
 @use "../../sass/mixins/mixins" as m;
+@use "../../sass/mixins/mediaQueries" as *;
 
 .form {
   display: flex;
@@ -37,4 +38,18 @@
 
 .icon {
   @include m.category-icon("large");
+}
+
+@include large-laptop {
+  .category {
+    font-size: 1.3em;
+  }
+
+  .todo {
+    gap: 1.4em;
+  }
+
+  .inputField {
+    border-radius: 32px;
+  }
 }

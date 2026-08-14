@@ -12,7 +12,9 @@ export default function CategoryForm() {
             className={classes.inputField}
             placeholder="Add a category..."
           />
-          <AddButton>+</AddButton>
+          <AddButton>
+            <i className="fa-solid fa-plus"></i>
+          </AddButton>
         </form>
       </section>
     </div>

@@ -20,7 +20,9 @@ export default function TodoForm() {
           className={classes.inputField}
           placeholder="Add a task..."
         />
-        <AddButton>+</AddButton>
+        <AddButton>
+          <i className="fa-solid fa-plus"></i>
+        </AddButton>
       </div>
     </form>
   );

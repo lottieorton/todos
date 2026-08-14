@@ -18,6 +18,9 @@
 
 .heading {
   font-size: 1.1em;
+  @include large-laptop {
+    font-size: 1.3em;
+  }
 }
 
 .icon {
@@ -27,4 +30,8 @@
   padding: 0.5em;
   background-color: c.$primary;
   border-radius: 50%;
+
+  @include large-laptop {
+    font-size: 1.2em;
+  }
 }

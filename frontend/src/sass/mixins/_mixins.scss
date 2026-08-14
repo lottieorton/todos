@@ -1,4 +1,5 @@
 @use "../variables/colors" as c;
+@use "./mediaQueries" as *;
 
 @mixin input-font {
   font-size: 0.9em;
@@ -11,6 +12,10 @@
   &:focus {
     outline: none;
   }
+
+  @include large-laptop {
+    font-size: 1.2em;
+  }
 }
 
 @mixin category-icon($size: "large") {
@@ -20,5 +25,13 @@
     font-size: 0.6em;
   } @else if $size == "large" {
     font-size: 1em;
+  }
+
+  @include large-laptop {
+    @if $size == "small" {
+      font-size: 0.8em;
+    } @else if $size == "large" {
+      font-size: 1.3em;
+    }
   }
 }

@@ -1,4 +1,5 @@
 @use "../../sass/variables/colors" as c;
+@use "../../sass/mixins/mediaQueries" as *;
 
 .header {
   display: flex;
@@ -14,5 +15,14 @@
     font-size: 1em;
     font-weight: normal;
     color: c.$muted-text;
+  }
+
+  @include large-laptop {
+    &__large {
+      font-size: 1.8em;
+    }
+    &__small {
+      font-size: 1.3em;
+    }
   }
 }
