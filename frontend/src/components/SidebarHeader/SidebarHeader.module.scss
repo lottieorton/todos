@@ -1,0 +1,37 @@
+@use "../../sass/mixins/mediaQueries" as *;
+@use "../../sass/variables/colors" as c;
+
+.sidebarHeader {
+  display: none;
+  @include laptop {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+}
+
+.header {
+  display: flex;
+  gap: 0.75em;
+  align-items: center;
+}
+
+.heading {
+  font-size: 1.1em;
+  @include large-laptop {
+    font-size: 1.3em;
+  }
+}
+
+.icon {
+  font-size: 1em;
+  color: c.$card-bg;
+  align-self: center;
+  padding: 0.5em;
+  background-color: c.$primary;
+  border-radius: 50%;
+
+  @include large-laptop {
+    font-size: 1.2em;
+  }
+}

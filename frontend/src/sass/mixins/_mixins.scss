@@ -1,0 +1,37 @@
+@use "../variables/colors" as c;
+@use "./mediaQueries" as *;
+
+@mixin input-font {
+  font-size: 0.9em;
+  color: c.$primary;
+
+  &::placeholder {
+    color: c.$muted-text;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  @include large-laptop {
+    font-size: 1.2em;
+  }
+}
+
+@mixin category-icon($size: "large") {
+  color: c.$primary;
+  align-self: center;
+  @if $size == "small" {
+    font-size: 0.6em;
+  } @else if $size == "large" {
+    font-size: 1em;
+  }
+
+  @include large-laptop {
+    @if $size == "small" {
+      font-size: 0.8em;
+    } @else if $size == "large" {
+      font-size: 1.3em;
+    }
+  }
+}

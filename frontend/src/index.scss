@@ -1,0 +1,7 @@
+@use "./sass/normalize";
+@use "./sass/variables/colors" as c;
+
+:root {
+  font-family: Outfit, sans-serif;
+  background-color: c.$bg;
+}

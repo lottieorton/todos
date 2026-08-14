@@ -1,0 +1,55 @@
+@use "../../sass/variables/colors" as c;
+@use "../../sass/mixins/mixins" as m;
+@use "../../sass/mixins/mediaQueries" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.categorySection {
+  display: flex;
+  gap: 0.3em;
+  align-items: center;
+}
+
+.category {
+  color: c.$main-text;
+  font-size: 0.9em;
+  font-weight: 600;
+  background: none;
+  border: none;
+}
+
+.todo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1em;
+}
+
+.inputField {
+  @include m.input-font;
+  border: c.$border;
+  padding: 10px 14px;
+  border-radius: 20px;
+  background-color: c.$field-bg;
+}
+
+.icon {
+  @include m.category-icon("large");
+}
+
+@include large-laptop {
+  .category {
+    font-size: 1.3em;
+  }
+
+  .todo {
+    gap: 1.4em;
+  }
+
+  .inputField {
+    border-radius: 32px;
+  }
+}

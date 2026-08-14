@@ -1,0 +1,59 @@
+@use "../../sass/variables/colors" as c;
+@use "../../sass/mixins/mixins" as m;
+@use "../../sass/mixins/mediaQueries" as *;
+
+.todo {
+  display: flex;
+  align-items: center;
+  padding: 1em 0em;
+  gap: 0.8em;
+
+  &:first-child {
+    padding-top: 0em;
+  }
+  &:last-child {
+    padding-bottom: 0em;
+  }
+  &:not(:last-child) {
+    border-bottom: c.$border;
+  }
+
+  @include large-laptop {
+    padding: 1.2em 0;
+    gap: 1em;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  @include large-laptop {
+    gap: 0.5em;
+  }
+}
+
+.heading {
+  font-size: 0.9em;
+  @include large-laptop {
+    font-size: 1.3em;
+  }
+}
+
+.category {
+  display: flex;
+  gap: 0.2em;
+  color: c.$primary;
+}
+
+.categoryText {
+  font-size: 0.7em;
+  color: c.$primary;
+  @include large-laptop {
+    font-size: 1em;
+  }
+}
+
+.icon {
+  @include m.category-icon("small");
+}
