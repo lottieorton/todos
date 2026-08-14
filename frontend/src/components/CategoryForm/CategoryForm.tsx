@@ -1,24 +1,26 @@
+import { useCreateCategory } from "../../hooks/useCategories";
 import AddButton from "../Buttons/AddButton/AddButton";
 import classes from "./CategoryForm.module.scss";
 import { useForm, type SubmitHandler } from "react-hook-form";
-
-interface CategoryFormProps {
-  handleNewCategory: (newCategory: string) => void;
-}
 
 interface CategoryFormData {
   name: string;
 }
 
-export default function CategoryForm({ handleNewCategory }: CategoryFormProps) {
+export default function CategoryForm() {
+  // const createCategoryMutation = useCreateCategory();
+  const { mutate: createCategory, isError, error } = useCreateCategory();
+
   const { register, handleSubmit, reset } = useForm<CategoryFormData>();
 
   const onSubmit: SubmitHandler<CategoryFormData, void> = (d): void => {
-    console.log(d.name);
     if (d.name) {
-      handleNewCategory(d.name);
+      createCategory(d.name, {
+        onSuccess: () => {
+          reset();
+        },
+      });
     }
-    reset();
   };
 
   return (
@@ -37,6 +39,11 @@ export default function CategoryForm({ handleNewCategory }: CategoryFormProps) {
           </AddButton>
         </form>
       </section>
+      {isError && (
+        <div>
+          {error?.message || "Failed to create category. Please try again."}
+        </div>
+      )}
     </div>
   );
 }

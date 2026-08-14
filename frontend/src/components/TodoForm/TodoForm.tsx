@@ -1,12 +1,18 @@
 import AddButton from "../Buttons/AddButton/AddButton";
 import classes from "./TodoForm.module.scss";
-import type { Category } from "../../interfaces/Category";
+import { useCategories } from "../../hooks/useCategories";
 
-interface TodoFormProps {
-  categories: Category[];
-}
+export default function TodoForm() {
+  const {
+    data: categories = [],
+    isLoading,
+    isError: isCategoriesError,
+  } = useCategories();
 
-export default function TodoForm({ categories }: TodoFormProps) {
+  if (isLoading) return <div>Loading...</div>;
+
+  if (isCategoriesError) return <div>Error</div>;
+
   return (
     <form
       className={classes.form + " section todoForm"}
