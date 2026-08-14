@@ -1,17 +1,28 @@
 import AddButton from "../Buttons/AddButton/AddButton";
 import classes from "./TodoForm.module.scss";
+import type { Category } from "../../interfaces/Category";
 
-export default function TodoForm() {
+interface TodoFormProps {
+  categories: Category[];
+}
+
+export default function TodoForm({ categories }: TodoFormProps) {
   return (
-    <form className={classes.form + " section todoForm"}>
+    <form
+      className={classes.form + " section todoForm"}
+      // onSubmit={}
+    >
       <div className={classes.categorySection}>
         <i className={`fa-solid fa-tag ${classes.icon}`}></i>
-        <select id="category" className={classes.category}>
-          <option value="" disabled>
-            Select a category
-          </option>
-          <option value="cleaning">Cleaning</option>
-          <option value="cleaning">Exercise</option>
+        <select name="category" className={classes.category}>
+          <option value="">Select a category</option>
+          {categories.map((c) => {
+            return (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            );
+          })}
         </select>
       </div>
       <div className={classes.todo}>
@@ -19,6 +30,7 @@ export default function TodoForm() {
           type="text"
           className={classes.inputField}
           placeholder="Add a task..."
+          name="name"
         />
         <AddButton>
           <i className="fa-solid fa-plus"></i>
