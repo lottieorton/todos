@@ -1,0 +1,43 @@
+@use "../../sass/variables/colors" as c;
+@use "../../sass/mixins/mixins" as m;
+
+.todo {
+  display: flex;
+  align-items: center;
+  padding: 1em 0em;
+  gap: 0.8em;
+
+  &:first-child {
+    padding-top: 0em;
+  }
+  &:last-child {
+    padding-bottom: 0em;
+  }
+  &:not(:last-child) {
+    border-bottom: c.$border;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.heading {
+  font-size: 0.9em;
+}
+
+.category {
+  display: flex;
+  gap: 0.2em;
+  color: c.$primary;
+}
+
+.categoryText {
+  font-size: 0.7em;
+}
+
+.icon {
+  @include m.category-icon("small");
+}

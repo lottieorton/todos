@@ -1,0 +1,21 @@
+@use "../../sass/variables/colors" as c;
+
+.todoBar {
+  position: relative;
+  margin-top: 0.5em;
+  height: 4px;
+  width: 100%;
+  border-radius: 4px;
+  background-color: c.$secondary;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background-color: c.$primary;
+    border-radius: 4px;
+  }
+}

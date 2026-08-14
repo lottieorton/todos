@@ -1,0 +1,11 @@
+@use "../../../sass/variables/colors" as c;
+
+.btn {
+  background-color: c.$btn;
+  font-size: 1.4em;
+  border: none;
+  color: c.$card-bg;
+  border-radius: 50%;
+  height: 100%;
+  aspect-ratio: 1;
+}

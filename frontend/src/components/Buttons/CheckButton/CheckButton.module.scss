@@ -1,0 +1,21 @@
+@use "../../../sass/variables/colors" as c;
+
+.btn {
+  height: 25px;
+  width: 25px;
+  border: 2px solid c.$muted-text;
+  background-color: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: c.$card-bg;
+  font-size: 0.75em;
+
+  &__checked {
+    background-color: c.$primary;
+    border-color: c.$primary;
+  }
+}

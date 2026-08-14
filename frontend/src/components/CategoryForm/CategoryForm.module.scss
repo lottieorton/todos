@@ -1,0 +1,20 @@
+@use "../../sass/variables/colors" as c;
+@use "../../sass/mixins/mixins" as m;
+
+.form {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-self: flex-start;
+  width: 100%;
+}
+
+.inputField {
+  @include m.input-font;
+  background: none;
+  border: none;
+  padding: 8px;
+}
+
+.icon {
+  @include m.category-icon("large");
+}
