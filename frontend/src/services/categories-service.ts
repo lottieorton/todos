@@ -18,7 +18,10 @@ export const createCategory = async (name: string): Promise<Category> => {
     body: JSON.stringify({ name }),
   });
   if (response.status != 201) {
-    throw new FailedCreateError("Failed to create category");
+    const errorResponseBody = await response.json().catch(() => null);
+    throw new FailedCreateError(
+      errorResponseBody?.message ?? "Failed to create category",
+    );
   }
   return response.json();
 };

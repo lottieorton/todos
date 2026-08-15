@@ -1,4 +1,4 @@
-import { FailedCreateError, FetchError } from "../errors/errors";
+import { FetchError } from "../errors/errors";
 import type { Category } from "../interfaces/Category";
 import { createCategory, getAllCategories } from "./categories-service";
 
@@ -8,7 +8,7 @@ describe("categories service", () => {
   });
 
   describe("getAllCategories", () => {
-    it("Should return a list of categories on successful fetch", async () => {
+    it("Should return an array of categories on successful fetch", async () => {
       // arrange
       const mockCategories: Category[] = [
         { id: 1, name: "Cleaning" },
@@ -65,13 +65,35 @@ describe("categories service", () => {
 
     it("Should throw a FailedCreateError for non 201 response status", async () => {
       // arrange
+      const mockTodoErrorResponseBody = {
+        timestamp: "2026-08-15T07:09:14.240081Z",
+        status: 400,
+        error: "Bad Request",
+        message: "Validation failed for argument",
+        path: "/categories",
+      };
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => mockTodoErrorResponseBody,
+      } as Response);
+      // assert
+      await expect(createCategory("Fails")).rejects.toThrow(
+        "Validation failed for argument",
+      );
+    });
+
+    it("Should throw a FailedCreateError for non 201 response status without message", async () => {
+      // arrange
       vi.spyOn(window, "fetch").mockResolvedValueOnce({
         ok: false,
         status: 400,
         json: async () => {},
       } as Response);
       // assert
-      await expect(createCategory("Fails")).rejects.toThrow(FailedCreateError);
+      await expect(createCategory("Fails")).rejects.toThrow(
+        "Failed to create category",
+      );
     });
 
     it("Should throw an error on failed POST request", async () => {

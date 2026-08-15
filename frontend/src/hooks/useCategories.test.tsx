@@ -19,6 +19,9 @@ const createWrapper = () => {
       queries: {
         retry: false,
       },
+      mutations: {
+        retry: false,
+      },
     },
   });
 
