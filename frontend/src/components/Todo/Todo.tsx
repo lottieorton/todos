@@ -1,4 +1,4 @@
-import CheckButton from "../Buttons/CheckButton/CheckButton";
+import CheckButton from "../buttons/CheckButton/CheckButton";
 import classes from "./Todo.module.scss";
 
 export default function Todo() {

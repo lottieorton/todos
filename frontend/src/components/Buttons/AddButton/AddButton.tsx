@@ -7,7 +7,7 @@ interface ButtonProps {
 
 export default function AddButton({ children }: ButtonProps) {
   return (
-    <button type="submit" className={classes.btn}>
+    <button type="submit" className={classes.btn} aria-label="Add">
       {children}
     </button>
   );

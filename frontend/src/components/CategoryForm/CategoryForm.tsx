@@ -1,5 +1,5 @@
 import { useCreateCategory } from "../../hooks/useCategories";
-import AddButton from "../Buttons/AddButton/AddButton";
+import AddButton from "../buttons/AddButton/AddButton";
 import classes from "./CategoryForm.module.scss";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
@@ -8,7 +8,6 @@ interface CategoryFormData {
 }
 
 export default function CategoryForm() {
-  // const createCategoryMutation = useCreateCategory();
   const { mutate: createCategory, isError, error } = useCreateCategory();
 
   const { register, handleSubmit, reset } = useForm<CategoryFormData>();
@@ -27,7 +26,10 @@ export default function CategoryForm() {
     <div className="categoryForm">
       <section className="section">
         <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-          <i className={`fa-solid fa-tag ${classes.icon}`}></i>
+          <i
+            className={`fa-solid fa-tag ${classes.icon}`}
+            data-testid="categoryIcon"
+          ></i>
           <input
             {...register("name", { required: true })}
             type="text"

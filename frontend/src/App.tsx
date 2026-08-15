@@ -17,7 +17,7 @@ function App() {
         <CategoryForm />
         <TodoForm />
         <TodoList />
-        <div className="sidebarBackground" />
+        <div className="sidebarBackground" data-testid="sidebarBackground" />
       </div>
     </QueryClientProvider>
   );

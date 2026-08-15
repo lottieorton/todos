@@ -1,4 +1,4 @@
-import AddButton from "../Buttons/AddButton/AddButton";
+import AddButton from "../buttons/AddButton/AddButton";
 import classes from "./TodoForm.module.scss";
 import { useCategories } from "../../hooks/useCategories";
 
