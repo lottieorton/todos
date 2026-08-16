@@ -1,15 +1,25 @@
-import AddButton from "../buttons/AddButton/AddButton";
 import classes from "./TodoForm.module.scss";
 import { useCategories } from "../../hooks/useCategories";
-import { useCreateTodo } from "../../hooks/useTodos";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { type SubmitHandler, type UseFormReturn } from "react-hook-form";
+import type { TodoFormData } from "../../interfaces/TodoFormData";
+import FormButton from "../buttons/FormButton/FormButton";
 
-interface TodoFormData {
-  name: string;
-  categoryId: number;
+interface TodoFormProps {
+  formMethods: UseFormReturn<TodoFormData>;
+  onSubmit: SubmitHandler<TodoFormData>;
+  formText: {
+    categorySelection: string;
+    todoPlaceholder: string;
+    btn: "add" | "edit";
+    isBtnRounded?: boolean;
+  };
 }
 
-export default function TodoForm() {
+export default function TodoForm({
+  formMethods,
+  onSubmit,
+  formText: { categorySelection, todoPlaceholder, btn, isBtnRounded = false },
+}: TodoFormProps) {
   const {
     data: categories = [],
     isLoading,
@@ -17,33 +27,11 @@ export default function TodoForm() {
     error: categoriesError,
   } = useCategories();
 
-  const {
-    mutate: createTodo,
-    isError: isTodosError,
-    error: todosError,
-  } = useCreateTodo();
-
-  const { register, handleSubmit, reset } = useForm<TodoFormData>();
-
-  const onSubmit: SubmitHandler<TodoFormData, void> = (d): void => {
-    if (d.name && d.categoryId) {
-      const data = {
-        name: d.name,
-        categoryId: d.categoryId,
-      };
-      createTodo(data, {
-        onSuccess: () => {
-          reset();
-        },
-      });
-    }
-  };
+  const { register, handleSubmit } = formMethods;
 
   if (isLoading) return <div>Loading...</div>;
 
   if (isCategoriesError) return <div>{categoriesError.message}</div>;
-
-  if (isTodosError) return <div>{todosError.message}</div>;
 
   return (
     <form
@@ -56,7 +44,7 @@ export default function TodoForm() {
           aria-label="categoryIcon"
         ></i>
         <select className={classes.category} {...register("categoryId")}>
-          <option value="">Select a category</option>
+          <option value="">{categorySelection}</option>
           {categories.map((c) => {
             return (
               <option key={c.id} value={c.id}>
@@ -70,12 +58,15 @@ export default function TodoForm() {
         <input
           type="text"
           className={classes.inputField}
-          placeholder="Add a task..."
+          placeholder={todoPlaceholder}
           {...register("name")}
         />
-        <AddButton>
-          <i className="fa-solid fa-plus" aria-label="add"></i>
-        </AddButton>
+        <FormButton isRounded={isBtnRounded}>
+          {btn === "add" && (
+            <i className="fa-solid fa-plus" aria-label="add"></i>
+          )}
+          {btn === "edit" && "Update"}
+        </FormButton>
       </div>
     </form>
   );

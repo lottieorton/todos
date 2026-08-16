@@ -1,0 +1,22 @@
+@use "../../../sass/variables/colors" as c;
+@use "../../../sass/mixins/mediaQueries" as *;
+
+.iconBtn {
+  font-size: 1em;
+  background: none;
+  outline: transparent;
+  border: none;
+  padding: 0em;
+
+  &--green {
+    color: c.$primary;
+  }
+
+  &--red {
+    color: #ef4444;
+  }
+
+  @include large-laptop {
+    font-size: 1.3em;
+  }
+}

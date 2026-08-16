@@ -1,13 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import type { Todo } from "../interfaces/Todo";
-import { createTodo, getAllTodos } from "../services/todos-service";
+import { createTodo, getAllTodos, updateTodo } from "../services/todos-service";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { useCreateTodo, useTodos } from "./useTodos";
+import { useCreateTodo, useTodos, useUpdateTodo } from "./useTodos";
 
 vi.mock("../services/todos-service", () => ({
   getAllTodos: vi.fn(),
   createTodo: vi.fn(),
+  updateTodo: vi.fn(),
 }));
 
 const createWrapper = () => {
@@ -192,6 +193,133 @@ describe("useTodos hooks", () => {
           "Failed to create todo",
         );
         expect(createTodo).toHaveBeenCalledOnce();
+        expect(getAllTodos).toHaveBeenCalledOnce();
+      });
+    });
+  });
+
+  describe("useCreateTodos", () => {
+    it("Should return new todo on successful updateTodos", async () => {
+      //arrange
+      const mockUpdatedTodo: Todo = {
+        id: 1,
+        name: "Fill the dishwasher",
+        category: "Cleaning",
+      };
+      const mockFormData = {
+        id: 1,
+        name: "Fill the dishwasher",
+        categoryId: 1,
+      };
+      vi.mocked(updateTodo).mockResolvedValueOnce(mockUpdatedTodo);
+      // act
+      const { result } = renderHook(() => useUpdateTodo(), {
+        wrapper: createWrapper(),
+      });
+      expect(result.current.isPending).toBe(false);
+      expect(result.current.isSuccess).toBe(false);
+      act(() => {
+        result.current.mutate(mockFormData);
+      });
+      // assert
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(updateTodo).toHaveBeenCalledOnce();
+        expect(updateTodo).toHaveBeenCalledWith(
+          mockFormData.id,
+          mockFormData.name,
+          mockFormData.categoryId,
+        );
+        expect(result.current.data).toEqual(mockUpdatedTodo);
+        expect(result.current.isPending).toBe(false);
+      });
+    });
+
+    it("Should cause getAllTodos to be called on successful updateTodo", async () => {
+      //arrange
+      const mockUpdatedTodo: Todo = {
+        id: 2,
+        name: "Go for a 5km run",
+        category: "Fitness",
+      };
+      vi.mocked(updateTodo).mockResolvedValueOnce(mockUpdatedTodo);
+      const mockInitialTodos: Todo[] = [
+        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        { id: 2, name: "Go to the gym", category: "Fitness" },
+      ];
+      const mockUpdatedTodos: Todo[] = [
+        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        { id: 2, name: "Go for a 5km run", category: "Fitness" },
+      ];
+      vi.mocked(getAllTodos)
+        .mockResolvedValueOnce(mockInitialTodos)
+        .mockResolvedValueOnce(mockUpdatedTodos);
+
+      const mockFormData = { id: 2, name: "Go for a 5km run", categoryId: 2 };
+
+      const wrapper = createWrapper();
+
+      const { result } = renderHook(
+        () => ({
+          query: useTodos(),
+          mutation: useUpdateTodo(),
+        }),
+        { wrapper },
+      );
+      // act
+      await waitFor(() => {
+        expect(result.current.query.data).toEqual(mockInitialTodos);
+      });
+      expect(getAllTodos).toHaveBeenCalledOnce();
+      act(() => {
+        result.current.mutation.mutate(mockFormData);
+      });
+      // assert
+      await waitFor(() => {
+        expect(result.current.mutation.isSuccess).toBe(true);
+        expect(updateTodo).toHaveBeenCalledOnce();
+        expect(getAllTodos).toHaveBeenCalledTimes(2);
+        expect(result.current.query.data).toEqual(mockUpdatedTodos);
+      });
+    });
+
+    it("Should return isError when updateTodo errors", async () => {
+      // arrange
+      vi.mocked(updateTodo).mockRejectedValueOnce(
+        new Error("Failed to update todo"),
+      );
+      const mockFormData = { id: 1, name: "Go to the gym", categoryId: 2 };
+      const mockInitialTodos: Todo[] = [
+        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+      ];
+      vi.mocked(getAllTodos).mockResolvedValueOnce(mockInitialTodos);
+
+      const wrapper = createWrapper();
+
+      const { result } = renderHook(
+        () => ({
+          query: useTodos(),
+          mutation: useUpdateTodo(),
+        }),
+        { wrapper },
+      );
+
+      // act
+      await waitFor(() => {
+        expect(result.current.query.data).toEqual(mockInitialTodos);
+      });
+      expect(getAllTodos).toHaveBeenCalledOnce();
+      act(() => {
+        result.current.mutation.mutate(mockFormData);
+      });
+      // assert
+      await waitFor(() => {
+        expect(result.current.mutation.isSuccess).toBe(false);
+        expect(result.current.mutation.isError).toBe(true);
+        expect(result.current.mutation.error?.message).toBe(
+          "Failed to update todo",
+        );
+        expect(updateTodo).toHaveBeenCalledOnce();
         expect(getAllTodos).toHaveBeenCalledOnce();
       });
     });

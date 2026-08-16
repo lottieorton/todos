@@ -6,9 +6,16 @@
   font-size: 1em;
   border: none;
   color: c.$card-bg;
-  border-radius: 50%;
   height: 100%;
-  aspect-ratio: 1;
+
+  border-radius: 20px;
+  padding: 0 10px;
+
+  &.rounded {
+    border-radius: 50%;
+    padding: 0;
+    aspect-ratio: 1;
+  }
 
   @include large-laptop {
     font-size: 1.4em;

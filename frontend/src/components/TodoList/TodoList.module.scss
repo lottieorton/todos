@@ -1,4 +1,10 @@
+@use "../../sass/mixins/mediaQueries" as *;
+
 .container {
   display: flex;
   flex-direction: column;
+
+  @include laptop {
+    margin-bottom: 2em;
+  }
 }

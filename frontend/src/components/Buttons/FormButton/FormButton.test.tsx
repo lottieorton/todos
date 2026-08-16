@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import AddButton from "./AddButton";
+import AddButton from "./FormButton";
 
-describe("AddButton", () => {
+describe("FormButton", () => {
   it("Should render itself with children", () => {
     // arrange
     render(
@@ -15,6 +15,6 @@ describe("AddButton", () => {
     // assert
     expect(header).toBeInTheDocument();
     expect(btn).toBeInTheDocument();
-    expect(btn).toHaveAccessibleName("Add");
+    expect(btn).toHaveAccessibleName("Submit");
   });
 });

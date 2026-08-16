@@ -1,5 +1,5 @@
 import { useCreateCategory } from "../../hooks/useCategories";
-import AddButton from "../buttons/AddButton/AddButton";
+import FormButton from "../buttons/FormButton/FormButton";
 import classes from "./CategoryForm.module.scss";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
@@ -36,9 +36,9 @@ export default function CategoryForm() {
             className={classes.inputField}
             placeholder="Add a category..."
           />
-          <AddButton>
+          <FormButton isRounded>
             <i className="fa-solid fa-plus"></i>
-          </AddButton>
+          </FormButton>
         </form>
       </section>
       {isError && (

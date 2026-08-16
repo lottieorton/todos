@@ -1,6 +1,6 @@
 import { FetchError } from "../errors/errors";
 import type { Todo } from "../interfaces/Todo";
-import { createTodo, getAllTodos } from "./todos-service";
+import { createTodo, getAllTodos, updateTodo } from "./todos-service";
 
 describe("todos service", () => {
   beforeEach(() => {
@@ -105,6 +105,88 @@ describe("todos service", () => {
       );
       // assert
       await expect(createTodo("Fails", 50)).rejects.toThrow(
+        "Network connection error",
+      );
+    });
+  });
+
+  describe("updateTodo", () => {
+    it("Should return a todo on successful PATCH request", async () => {
+      // arrange
+      const mockUpdatedTodo = {
+        id: 1,
+        name: "Updated task",
+        category: "Cleaning",
+      };
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockUpdatedTodo,
+      } as Response);
+      // act
+      const result = await updateTodo(1, "Fill the dishwasher", 1);
+      // assert
+      expect(result).toEqual(mockUpdatedTodo);
+    });
+
+    it("Should return a todo on successful PATCH request with no new name or categoryId", async () => {
+      // arrange
+      const mockUpdatedTodo = {
+        id: 1,
+        name: "Updated task",
+        category: "Cleaning",
+      };
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockUpdatedTodo,
+      } as Response);
+      // act
+      const result = await updateTodo(1);
+      // assert
+      expect(result).toEqual(mockUpdatedTodo);
+    });
+
+    it("Should throw a FailedUpdateError for !response.ok", async () => {
+      // arrange
+      const mockTodoErrorResponseBody = {
+        timestamp: "2026-08-15T07:09:14.240081Z",
+        status: 404,
+        error: "Not Found",
+        message: "Could not find todo with id 50",
+        path: "/todos/50",
+      };
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => mockTodoErrorResponseBody,
+      } as Response);
+      // assert
+      await expect(updateTodo(50, "Fails", 3)).rejects.toThrow(
+        "Could not find todo with id 50",
+      );
+    });
+
+    it("Should throw a FailedUpdateError with default message for non ok response status without message", async () => {
+      // arrange
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => {},
+      } as Response);
+      // assert
+      await expect(updateTodo(50, "Fails", 2)).rejects.toThrow(
+        "Failed to update todo",
+      );
+    });
+
+    it("Should throw an error on failed PATCH request", async () => {
+      // arrange
+      vi.spyOn(window, "fetch").mockRejectedValueOnce(
+        new Error("Network connection error"),
+      );
+      // assert
+      await expect(updateTodo(1, "Fails", 2)).rejects.toThrow(
         "Network connection error",
       );
     });

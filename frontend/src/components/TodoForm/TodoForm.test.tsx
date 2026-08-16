@@ -1,16 +1,18 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { useCreateTodo } from "../../hooks/useTodos";
+import { render, renderHook, screen } from "@testing-library/react";
 import TodoForm from "./TodoForm";
 import { useCategories } from "../../hooks/useCategories";
 import type { Category } from "../../interfaces/Category";
 import userEvent from "@testing-library/user-event";
+import { useForm } from "react-hook-form";
+import type { TodoFormData } from "../../interfaces/TodoFormData";
 
-vi.mock("../buttons/AddButton/AddButton", () => {
+vi.mock("../buttons/FormButton/FormButton", () => {
   return {
-    default: vi.fn(() => {
+    default: vi.fn(({ children, isRounded }) => {
       return (
-        <button data-testid="add-btn" type="submit">
-          Btn
+        <button data-testid="form-btn" type="submit">
+          {"Rounded " + isRounded + " "}
+          <div data-testid="children">{children}</div>
         </button>
       );
     }),
@@ -21,18 +23,18 @@ vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
 }));
 
-vi.mock("../../hooks/useTodos", () => ({
-  useCreateTodo: vi.fn(),
-}));
+// vi.mock("../../hooks/useTodos", () => ({
+//   useCreateTodo: vi.fn(),
+// }));
 
 describe("TodoForm", () => {
-  const mockMutate = vi.fn(
-    (_data: string, options: { onSuccess: () => void }) => {
-      if (options?.onSuccess) {
-        options.onSuccess();
-      }
-    },
-  );
+  // const mockMutate = vi.fn(
+  //   (_data: string, options: { onSuccess: () => void }) => {
+  //     if (options?.onSuccess) {
+  //       options.onSuccess();
+  //     }
+  //   },
+  // );
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,24 +51,40 @@ describe("TodoForm", () => {
       error: null,
     } as any);
 
-    vi.mocked(useCreateTodo).mockReturnValue({
-      mutate: mockMutate,
-      isError: false,
-      error: null,
-      isPending: false,
-    } as any);
+    // vi.mocked(useCreateTodo).mockReturnValue({
+    //   mutate: mockMutate,
+    //   isError: false,
+    //   error: null,
+    //   isPending: false,
+    // } as any);
   });
+  const mockOnSubmit = vi.fn();
+  const mockFormText = {
+    categorySelection: "Select a category",
+    todoPlaceholder: "Add a task...",
+    btn: "add",
+  } as const;
 
-  it("Should render form with list of categories in the dropdown", () => {
+  it("Should render form with list of categories in the dropdown, with an add, non-round btn", () => {
     // arrange
-    render(<TodoForm />);
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+      />,
+    );
     // act
     const btn = screen.getByRole("button");
     const nameInput = screen.getByPlaceholderText("Add a task...");
     const icon = screen.getByLabelText("categoryIcon");
     const dropdownList = screen.getAllByRole("option");
+    const addIcon = screen.getByLabelText("add");
     // assert
     expect(btn).toBeInTheDocument();
+    expect(addIcon).toBeInTheDocument();
+    expect(btn).toHaveTextContent("Rounded false");
     expect(nameInput).toBeInTheDocument();
     expect(icon).toBeInTheDocument();
     expect(dropdownList).toHaveLength(3);
@@ -78,6 +96,53 @@ describe("TodoForm", () => {
     expect(dropdownList[2]).toHaveTextContent("Fitness");
   });
 
+  it("Should render form btn as round when isRounded is true", () => {
+    // arrange
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    const mockFormText = {
+      categorySelection: "Select a category",
+      todoPlaceholder: "Add a task...",
+      btn: "add",
+      isBtnRounded: true,
+    } as const;
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+      />,
+    );
+    // act
+    const btn = screen.getByRole("button");
+    // assert
+    expect(btn).toBeInTheDocument();
+  });
+
+  it("Should render edit form btn when btn = edit", () => {
+    // arrange
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    const mockFormText = {
+      categorySelection: "Select a category",
+      todoPlaceholder: "Add a task...",
+      btn: "edit",
+    } as const;
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+      />,
+    );
+    // act
+    const btn = screen.getByRole("button");
+    const update = screen.getByTestId("children");
+    // assert
+    expect(btn).toBeInTheDocument();
+    screen.debug();
+    expect(btn).toHaveTextContent("Rounded false Update");
+    expect(update).toHaveTextContent("Update");
+  });
+
   it("Should render loading message while fetching categories", () => {
     vi.mocked(useCategories).mockReturnValue({
       data: null,
@@ -85,8 +150,14 @@ describe("TodoForm", () => {
       isError: false,
       error: null,
     } as any);
-
-    render(<TodoForm />);
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+      />,
+    );
     // act
     const loadingMessage = screen.getByText("Loading...");
     // assert
@@ -102,17 +173,31 @@ describe("TodoForm", () => {
       error: new Error("Failed to load categories"),
     } as any);
 
-    render(<TodoForm />);
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+      />,
+    );
     // act
     const errorMessage = screen.getByText("Failed to load categories");
     // assert
     expect(errorMessage).toBeInTheDocument();
   });
 
-  it("Should reset the form onSuccess of creating a todo", async () => {
+  it("Should call onSubmit prop when submit form", async () => {
     // arrange
     const user = userEvent.setup();
-    render(<TodoForm />);
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+      />,
+    );
     // act
     const btn = screen.getByRole("button");
     const nameInput =
@@ -122,46 +207,6 @@ describe("TodoForm", () => {
     await user.type(nameInput, "Run a 5km");
     await user.click(btn);
     // assert
-    expect(mockMutate).toHaveBeenCalledOnce();
-    await waitFor(() => {
-      expect(dropdown).toHaveValue("");
-      expect(nameInput.value).toBe("");
-    });
-  });
-
-  it("Should render error message if error with creating todo", async () => {
-    const user = userEvent.setup();
-    const createTodoMock = vi.fn();
-
-    vi.mocked(useCreateTodo).mockReturnValue({
-      mutate: createTodoMock,
-      isError: false,
-      error: null,
-      isPending: false,
-    } as any);
-
-    const { rerender } = render(<TodoForm />);
-    // act
-    const btn = screen.getByRole("button");
-    const nameInput =
-      screen.getByPlaceholderText<HTMLInputElement>("Add a task...");
-    const dropdown = screen.getByRole("combobox");
-    await user.selectOptions(dropdown, "2");
-    await user.type(nameInput, "Run a 5km");
-    await user.click(btn);
-    expect(createTodoMock).toHaveBeenCalledOnce();
-
-    vi.mocked(useCreateTodo).mockReturnValue({
-      mutate: createTodoMock,
-      isError: true,
-      error: new Error("Failed to create todo"),
-      isPending: false,
-    } as any);
-
-    rerender(<TodoForm />);
-
-    // assert
-    expect(screen.getByText("Failed to create todo")).toBeInTheDocument();
-    expect(createTodoMock).toHaveBeenCalledOnce();
+    expect(mockOnSubmit).toHaveBeenCalledOnce();
   });
 });

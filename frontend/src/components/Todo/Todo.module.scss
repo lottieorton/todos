@@ -3,10 +3,11 @@
 @use "../../sass/mixins/mediaQueries" as *;
 
 .todo {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   padding: 1em 0em;
-  gap: 0.8em;
+  gap: 1.2em;
 
   &:first-child {
     padding-top: 0em;
@@ -16,6 +17,23 @@
   }
   &:not(:last-child) {
     border-bottom: c.$border;
+  }
+
+  .editIcons {
+    display: flex;
+    gap: 1em;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s ease-in-out,
+      visibilty 0.2s ease-in-out;
+  }
+  &:hover,
+  &:focus-within {
+    .editIcons {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 
   @include large-laptop {
@@ -35,6 +53,13 @@
 
 .heading {
   font-size: 0.9em;
+
+  &_checked {
+    color: c.$muted-text;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+
   @include large-laptop {
     font-size: 1.3em;
   }
@@ -54,6 +79,11 @@
   }
 }
 
-.icon {
+.categoryIcon {
   @include m.category-icon("small");
+}
+
+.editTodo {
+  grid-row: 2;
+  grid-column: 1 / 4;
 }

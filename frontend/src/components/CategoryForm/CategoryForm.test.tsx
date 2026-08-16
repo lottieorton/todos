@@ -3,12 +3,12 @@ import CategoryForm from "./CategoryForm";
 import { useCreateCategory } from "../../hooks/useCategories";
 import userEvent from "@testing-library/user-event";
 
-vi.mock("../buttons/AddButton/AddButton", () => {
+vi.mock("../buttons/FormButton/FormButton", () => {
   return {
-    default: vi.fn(() => {
+    default: vi.fn(({ isRounded }) => {
       return (
         <button data-testid="add-btn" type="submit">
-          Btn
+          {"Rounded " + isRounded}
         </button>
       );
     }),
@@ -39,7 +39,7 @@ describe("CategoryForm", () => {
     } as any);
   });
 
-  it("Should render", () => {
+  it("Should render with props passed to button", () => {
     // arrange
     render(<CategoryForm />);
     // act
@@ -50,6 +50,7 @@ describe("CategoryForm", () => {
     expect(icon).toBeInTheDocument();
     expect(input).toBeInTheDocument();
     expect(btn).toBeInTheDocument();
+    expect(btn).toHaveTextContent("Rounded true");
   });
 
   it("Should reset the input value onSuccess of createCategory", async () => {
