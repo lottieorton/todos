@@ -1,5 +1,6 @@
 import {
   FailedCreateError,
+  FailedDeleteError,
   FailedUpdateError,
   FetchError,
 } from "../errors/errors";
@@ -52,4 +53,17 @@ export const updateTodo = async (
     );
   }
   return response.json();
+};
+
+export const deleteTodo = async (id: number): Promise<boolean> => {
+  const response = await fetch(`http://localhost:8080/todos/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const errorResponseBody = await response?.json().catch(() => null);
+    throw new FailedDeleteError(
+      errorResponseBody?.message ?? "Failed to delete todo",
+    );
+  }
+  return true;
 };

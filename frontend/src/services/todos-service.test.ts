@@ -1,6 +1,11 @@
 import { FetchError } from "../errors/errors";
 import type { Todo } from "../interfaces/Todo";
-import { createTodo, getAllTodos, updateTodo } from "./todos-service";
+import {
+  createTodo,
+  deleteTodo,
+  getAllTodos,
+  updateTodo,
+} from "./todos-service";
 
 describe("todos service", () => {
   beforeEach(() => {
@@ -189,6 +194,60 @@ describe("todos service", () => {
       await expect(updateTodo(1, "Fails", 2)).rejects.toThrow(
         "Network connection error",
       );
+    });
+  });
+
+  describe("deleteTodo", () => {
+    it("Should return true on successful delete", async () => {
+      // arrange
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: true,
+        status: 204,
+      } as Response);
+      // act
+      const result = await deleteTodo(1);
+      // assert
+      expect(result).toEqual(true);
+    });
+
+    it("Should throw a Failed DeleteError for !response.ok", async () => {
+      // arrange
+      const mockTodoErrorResponseBody = {
+        timestamp: "2026-08-15T07:09:14.240081Z",
+        status: 404,
+        error: "Not Found",
+        message: "Could not find todo with id 50",
+        path: "/todos/50",
+      };
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => mockTodoErrorResponseBody,
+      } as Response);
+      // assert
+      await expect(deleteTodo(50)).rejects.toThrow(
+        "Could not find todo with id 50",
+      );
+    });
+
+    it("Should throw a FailedDeleteError with default message for non ok response status without message", async () => {
+      // arrange
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => {},
+      } as Response);
+      // assert
+      await expect(deleteTodo(50)).rejects.toThrow("Failed to delete todo");
+    });
+
+    it("Should throw an error on failed DELETE request", async () => {
+      // arrange
+      vi.spyOn(window, "fetch").mockRejectedValueOnce(
+        new Error("Network connection error"),
+      );
+      // assert
+      await expect(deleteTodo(1)).rejects.toThrow("Network connection error");
     });
   });
 });

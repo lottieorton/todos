@@ -23,19 +23,7 @@ vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
 }));
 
-// vi.mock("../../hooks/useTodos", () => ({
-//   useCreateTodo: vi.fn(),
-// }));
-
 describe("TodoForm", () => {
-  // const mockMutate = vi.fn(
-  //   (_data: string, options: { onSuccess: () => void }) => {
-  //     if (options?.onSuccess) {
-  //       options.onSuccess();
-  //     }
-  //   },
-  // );
-
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -50,13 +38,6 @@ describe("TodoForm", () => {
       isError: false,
       error: null,
     } as any);
-
-    // vi.mocked(useCreateTodo).mockReturnValue({
-    //   mutate: mockMutate,
-    //   isError: false,
-    //   error: null,
-    //   isPending: false,
-    // } as any);
   });
   const mockOnSubmit = vi.fn();
   const mockFormText = {

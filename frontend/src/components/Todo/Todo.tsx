@@ -4,6 +4,7 @@ import CheckButton from "../buttons/CheckButton/CheckButton";
 import IconButton from "../buttons/IconButton/IconButton";
 import classes from "./Todo.module.scss";
 import EditTodo from "../EditTodo/EditTodo";
+import { useDeleteTodo } from "../../hooks/useTodos";
 
 interface TodoProps {
   todo: Todo;
@@ -20,6 +21,18 @@ export default function Todo({ todo }: TodoProps) {
   const toggleIsEditing = () => {
     setIsEditing((prev) => !prev);
   };
+
+  const {
+    mutate: deleteTodo,
+    isError: isTodosError,
+    error: todosError,
+  } = useDeleteTodo();
+
+  const handleDeleteClick = (): void => {
+    deleteTodo(todo.id);
+  };
+
+  if (isTodosError) return <div>{todosError.message}</div>;
 
   return (
     <article className={classes.todo}>
@@ -44,7 +57,7 @@ export default function Todo({ todo }: TodoProps) {
         <IconButton color={"green"} handleClick={toggleIsEditing}>
           <i className="fa-solid fa-pencil"></i>
         </IconButton>
-        <IconButton color={"red"} handleClick={() => {}}>
+        <IconButton color={"red"} handleClick={handleDeleteClick}>
           <i className="fa-solid fa-trash"></i>
         </IconButton>
       </div>

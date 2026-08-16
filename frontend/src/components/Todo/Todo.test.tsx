@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import Todo from "./Todo";
 import userEvent from "@testing-library/user-event";
+import { useDeleteTodo } from "../../hooks/useTodos";
+
+vi.mock("../../hooks/useTodos", () => ({
+  useDeleteTodo: vi.fn(),
+}));
 
 vi.mock("../buttons/CheckButton/CheckButton", () => {
   return {
@@ -40,6 +45,25 @@ vi.mock("../EditTodo/EditTodo", () => {
 });
 
 describe("Todo", () => {
+  const mockMutate = vi.fn(
+    (_data: unknown, options: { onSuccess: () => void }) => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+    },
+  );
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    vi.mocked(useDeleteTodo).mockReturnValue({
+      mutate: mockMutate,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+  });
+
   it("Should render with passed in props", () => {
     // arrange
     const todoProps = {
@@ -161,5 +185,54 @@ describe("Todo", () => {
     await user.click(editForm);
     // assert
     expect(editForm).not.toBeInTheDocument();
+  });
+
+  it("Should call deleteTodo/mutation when the delete button is clicked", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const todoProps = {
+      id: 1,
+      name: "Read",
+      category: "Hobbies",
+    };
+    render(<Todo todo={todoProps} />);
+    // act
+    const deleteBtn = screen.getByTestId("icon-btn-red");
+    await user.click(deleteBtn);
+    // assert
+    expect(mockMutate).toHaveBeenCalledOnce();
+    expect(mockMutate).toHaveBeenCalledWith(1);
+  });
+
+  it("Should render error message when deleting todo errors", async () => {
+    // arrange
+    vi.mocked(useDeleteTodo).mockReturnValue({
+      mutate: mockMutate,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+    const user = userEvent.setup();
+    const todoProps = {
+      id: 1,
+      name: "Read",
+      category: "Hobbies",
+    };
+    const { rerender } = render(<Todo todo={todoProps} />);
+    // act
+    const deleteBtn = screen.getByTestId("icon-btn-red");
+    await user.click(deleteBtn);
+    vi.mocked(useDeleteTodo).mockReturnValue({
+      mutate: mockMutate,
+      isError: true,
+      error: new Error("Failed to delete todo"),
+      isPending: false,
+    } as any);
+    rerender(<Todo todo={todoProps} />);
+    // assert
+    expect(mockMutate).toHaveBeenCalledOnce();
+    expect(mockMutate).toHaveBeenCalledWith(1);
+    screen.debug();
+    expect(screen.getByText("Failed to delete todo")).toBeInTheDocument();
   });
 });
