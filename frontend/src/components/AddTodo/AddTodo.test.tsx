@@ -8,7 +8,7 @@ vi.mock("../TodoForm/TodoForm", () => ({
     const { ref, ...nameRegister } = formMethods.register("name");
     return (
       <div>
-        <div>{formText.todoPlaceholder}</div>
+        <div>{formText.inputPlaceholder}</div>
         <div>{formText.categorySelection}</div>
         <div>{formText.btn}</div>
         <button
@@ -89,6 +89,8 @@ describe("AddTodo", () => {
     // act
     const btn = screen.getByRole("button");
     const input = screen.getByTestId("input");
+    await user.type(input, "Hello");
+    expect(input).toHaveValue("Hello");
     await user.click(btn);
     // assert
     expect(mockMutate).toHaveBeenCalledOnce();

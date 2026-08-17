@@ -3,22 +3,25 @@ import { useCategories } from "../../hooks/useCategories";
 import { type SubmitHandler, type UseFormReturn } from "react-hook-form";
 import type { TodoFormData } from "../../interfaces/TodoFormData";
 import FormButton from "../buttons/FormButton/FormButton";
+import IconButton from "../buttons/IconButton/IconButton";
 
 interface TodoFormProps {
   formMethods: UseFormReturn<TodoFormData>;
   onSubmit: SubmitHandler<TodoFormData>;
+  handleDelete?: (id: number) => void;
   formText: {
     categorySelection: string;
-    todoPlaceholder: string;
-    btn: "add" | "edit";
+    inputPlaceholder: string;
+    btn: "add" | "edit" | "editDelete";
     isBtnRounded?: boolean;
   };
 }
 
 export default function TodoForm({
   formMethods,
+  handleDelete,
   onSubmit,
-  formText: { categorySelection, todoPlaceholder, btn, isBtnRounded = false },
+  formText: { categorySelection, inputPlaceholder, btn, isBtnRounded = false },
 }: TodoFormProps) {
   const {
     data: categories = [],
@@ -28,6 +31,13 @@ export default function TodoForm({
   } = useCategories();
 
   const { register, handleSubmit } = formMethods;
+
+  const handleDeleteClick = () => {
+    const selectedCategory = formMethods.getValues("categoryId");
+    if (selectedCategory && handleDelete) {
+      handleDelete(selectedCategory);
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -39,10 +49,17 @@ export default function TodoForm({
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className={classes.categorySection}>
-        <i
-          className={`fa-solid fa-tag ${classes.icon}`}
-          aria-label="categoryIcon"
-        ></i>
+        {btn === "editDelete" ? (
+          <i
+            className={`fa-solid fa-pencil ${classes.icon}`}
+            aria-label="editIcon"
+          ></i>
+        ) : (
+          <i
+            className={`fa-solid fa-tag ${classes.icon}`}
+            aria-label="categoryIcon"
+          ></i>
+        )}
         <select className={classes.category} {...register("categoryId")}>
           <option value="">{categorySelection}</option>
           {categories.map((c) => {
@@ -58,15 +75,22 @@ export default function TodoForm({
         <input
           type="text"
           className={classes.inputField}
-          placeholder={todoPlaceholder}
+          placeholder={inputPlaceholder}
           {...register("name")}
         />
-        <FormButton isRounded={isBtnRounded}>
-          {btn === "add" && (
-            <i className="fa-solid fa-plus" aria-label="add"></i>
+        <div className={classes.btnContainer}>
+          <FormButton isRounded={isBtnRounded}>
+            {btn === "add" && (
+              <i className="fa-solid fa-plus" aria-label="add"></i>
+            )}
+            {(btn === "edit" || btn === "editDelete") && "Update"}
+          </FormButton>
+          {btn === "editDelete" && (
+            <IconButton color={"red"} handleClick={handleDeleteClick}>
+              <i className="fa-solid fa-trash"></i>
+            </IconButton>
           )}
-          {btn === "edit" && "Update"}
-        </FormButton>
+        </div>
       </div>
     </form>
   );

@@ -1,0 +1,10 @@
+.categoryList {
+  display: flex;
+  gap: 0.5em;
+  flex-wrap: wrap;
+  white-space: nowrap;
+}
+
+.category {
+  height: 1.3em;
+}

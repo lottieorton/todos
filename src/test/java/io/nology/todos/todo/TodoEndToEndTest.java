@@ -75,6 +75,47 @@ public class TodoEndToEndTest {
         .body(matchesJsonSchemaInClasspath("schemas/todo-list-schema.json"));
     }
 
+    @Test
+    public void getAllTodos_CategoryIdInDB_ReturnsOKAndArrayOfFilteredTodos() {
+        // arrange
+        Category category1 = new Category();
+        category1.setName("Test category 1");
+        categoryRepo.saveAndFlush(category1);
+        Long category1Id = category1.getId();
+        Category category2 = new Category();
+        category2.setName("Test category 2");
+        categoryRepo.saveAndFlush(category2);
+        Todo todo1 = new Todo();
+        todo1.setName("Test todo 1");
+        todo1.setCategory(category1);
+        todoRepo.saveAndFlush(todo1);
+        Todo todo2 = new Todo();
+        todo2.setName("Test todo 2");
+        todo2.setCategory(category2);
+        todoRepo.saveAndFlush(todo2);
+        // act
+        given().when().get("/todos?category=" + category1Id)
+        // assert
+        .then().statusCode(HttpStatus.OK.value())
+        .body("$", hasSize(1))
+        .body("name", hasItem("Test todo 1"))
+        .body("category", hasItem("Test category 1"))
+        .body(matchesJsonSchemaInClasspath("schemas/todo-list-schema.json"));
+    }
+
+    @Test
+    public void getAllTodos_CategoryIdNotInDB_ReturnsOKAndArrayOfFilteredTodos() {
+        // arrange
+        // act
+        given().when().get("/todos?category=1")
+        // assert
+        .then().statusCode(HttpStatus.UNPROCESSABLE_CONTENT.value())
+        .body("error", equalTo("Unprocessable Content"))
+        .body("message", equalTo("No category with id 1"))
+        .body(matchesJsonSchemaInClasspath("schemas/api-error-schema.json"));
+    }
+
+
     // getById
 
     @Test

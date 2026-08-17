@@ -28,7 +28,7 @@ export default function AddTodo() {
 
   const formText = {
     categorySelection: "Select a category",
-    todoPlaceholder: "Add a task...",
+    inputPlaceholder: "Add a task...",
     btn: "add",
     isBtnRounded: true,
   } as const;
@@ -36,10 +36,12 @@ export default function AddTodo() {
   if (isTodosError) return <div>{todosError.message}</div>;
 
   return (
-    <TodoForm
-      formMethods={formMethods}
-      onSubmit={onSubmit}
-      formText={formText}
-    />
+    <div data-testid="add-todo">
+      <TodoForm
+        formMethods={formMethods}
+        onSubmit={onSubmit}
+        formText={formText}
+      />
+    </div>
   );
 }

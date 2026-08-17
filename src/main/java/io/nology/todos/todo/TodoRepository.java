@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import io.nology.todos.todo.entities.Todo;
 
@@ -14,5 +15,9 @@ public interface TodoRepository extends JpaRepository<Todo, Long>{
     @EntityGraph(attributePaths = "category")
     @Query("SELECT t FROM Todo t")
     List<Todo> findAllWithCategory();
+
+    @EntityGraph(attributePaths = "category")
+    @Query("SELECT t FROM Todo t WHERE t.category.id = :categoryId")
+    List<Todo> findByCategoryId(@Param("categoryId") Long categoryId);
     
 }

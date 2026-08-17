@@ -19,15 +19,19 @@ public class TodoService {
     private final TodoRepository repo;
     private final CategoryService categoryService;
     private final ModelMapper mapper;
-
+    
     public TodoService(TodoRepository repo, CategoryService categoryService, ModelMapper mapper) {
         this.repo = repo;
         this.categoryService = categoryService;
         this.mapper = mapper;
     }
-
-    public List<Todo> findAll() {
-        return this.repo.findAllWithCategory();
+       
+    public List<Todo> findAll(Long categoryId) {
+        if(categoryId == null) {
+            return this.repo.findAllWithCategory();
+        }
+        resolveCategory(categoryId);
+        return this.repo.findByCategoryId(categoryId);
     }
 
     public Optional<Todo> findById(Long id) {
@@ -74,5 +78,6 @@ public class TodoService {
         }
         return returnedCategory.get();
     }
+
 
 }

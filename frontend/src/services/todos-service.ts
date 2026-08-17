@@ -6,8 +6,9 @@ import {
 } from "../errors/errors";
 import type { Todo } from "../interfaces/Todo";
 
-export const getAllTodos = async (): Promise<Todo[]> => {
-  const response = await fetch("http://localhost:8080/todos");
+export const getAllTodos = async (categoryId?: number): Promise<Todo[]> => {
+  const categoryFilter = categoryId ? `?category=${categoryId}` : "";
+  const response = await fetch("http://localhost:8080/todos" + categoryFilter);
   if (!response.ok) {
     throw new FetchError("Failed to fetch todos");
   }

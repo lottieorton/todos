@@ -34,15 +34,16 @@ describe("TodoList", () => {
     } as any);
   });
 
-  it("Should render list of Todos", () => {
+  it("Should render list of Todos passing prop value to useTodos", () => {
     // arrange
-    render(<TodoList />);
+    render(<TodoList categoryId={undefined} />);
     // act
     const todo1 = screen.getByTestId("todo-item-1");
     const todo2 = screen.getByTestId("todo-item-2");
     // assert
     expect(todo1).toHaveTextContent("Fill the dishwasher, Cleaning");
     expect(todo2).toHaveTextContent("Go to the gym, Fitness");
+    expect(useTodos).toHaveBeenCalledWith(undefined);
   });
 
   it("Should render loading message while fetching todos", () => {
@@ -53,7 +54,7 @@ describe("TodoList", () => {
       isError: false,
       error: null,
     } as any);
-    render(<TodoList />);
+    render(<TodoList categoryId={undefined} />);
     // act
     const loadingMessage = screen.getByText("Loading...");
     // assert
@@ -68,7 +69,7 @@ describe("TodoList", () => {
       isError: true,
       error: new Error("Failed to fetch todos"),
     } as any);
-    render(<TodoList />);
+    render(<TodoList categoryId={undefined} />);
     // act
     const errorMessage = screen.getByText("Failed to fetch todos");
     // assert

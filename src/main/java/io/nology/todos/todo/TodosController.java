@@ -1,6 +1,7 @@
 package io.nology.todos.todo;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.nology.todos.common.exceptions.NotFoundException;
@@ -33,9 +34,10 @@ public class TodosController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TodoResponse>> findAllTodos() {
-        List<Todo> allTodos = this.todoService.findAll();
-        return ResponseEntity.ok(TodoResponse.of(allTodos));
+    public ResponseEntity<List<TodoResponse>> findAllTodos(@RequestParam(name = "category", required = false) Long categoryId) {
+        List<Todo> todos = this.todoService.findAll(categoryId);
+        return ResponseEntity.ok(TodoResponse.of(todos));
+        
     }
 
     @GetMapping("/{id}")
