@@ -232,7 +232,6 @@ describe("Todo", () => {
     // assert
     expect(mockMutate).toHaveBeenCalledOnce();
     expect(mockMutate).toHaveBeenCalledWith(1);
-    screen.debug();
     expect(screen.getByText("Failed to delete todo")).toBeInTheDocument();
   });
 });

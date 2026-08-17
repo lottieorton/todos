@@ -17,6 +17,10 @@
     aspect-ratio: 1;
   }
 
+  &.selected {
+    background-color: c.$primary;
+  }
+
   @include large-laptop {
     font-size: 1.4em;
   }

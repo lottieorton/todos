@@ -159,7 +159,6 @@ describe("TodoForm", () => {
     const editIcon = screen.getByLabelText("editIcon");
     const updateFormBtn = screen.getByTestId("form-btn");
     const deleteBtn = screen.getByTestId("delete-btn");
-    screen.debug();
     // assert
     expect(editIcon).toBeInTheDocument();
     expect(updateFormBtn).toBeInTheDocument();

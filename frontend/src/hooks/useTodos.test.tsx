@@ -67,6 +67,59 @@ describe("useTodos hooks", () => {
       });
     });
 
+    it("Should return todos on successful getAllTodos with category id value passed in", async () => {
+      //arrange
+      const mockTodos: Todo[] = [
+        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+      ];
+      vi.mocked(getAllTodos).mockResolvedValueOnce(mockTodos);
+      // act
+      const { result } = renderHook(() => useTodos(1), {
+        wrapper: createWrapper(),
+      });
+      // assert
+      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isSuccess).toBe(false);
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(getAllTodos).toHaveBeenCalledOnce();
+        expect(result.current.data).toEqual(mockTodos);
+        expect(result.current.isLoading).toBe(false);
+      });
+    });
+
+    it("Should refetch todos on categoryId changing", async () => {
+      //arrange
+      const mockAllTodos: Todo[] = [
+        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        { id: 2, name: "Go to the gym", category: "Fitness" },
+      ];
+      const mockFilteredTodos: Todo[] = [
+        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+      ];
+      vi.mocked(getAllTodos)
+        .mockResolvedValueOnce(mockAllTodos)
+        .mockResolvedValueOnce(mockFilteredTodos);
+      // act
+      const { result, rerender } = renderHook(
+        (categoryId?: number) => useTodos(categoryId),
+        {
+          wrapper: createWrapper(),
+        },
+      );
+      await waitFor(() => {
+        expect(result.current.data).toEqual(mockAllTodos);
+        expect(getAllTodos).toHaveBeenCalledWith(undefined);
+      });
+      rerender(1);
+      // assert
+      await waitFor(() => {
+        expect(result.current.data).toEqual(mockFilteredTodos);
+        expect(getAllTodos).toHaveBeenCalledTimes(2);
+        expect(getAllTodos).toHaveBeenLastCalledWith(1);
+      });
+    });
+
     it("Should return isError when fetching todos errors", async () => {
       // arrange
       vi.mocked(getAllTodos).mockRejectedValueOnce(

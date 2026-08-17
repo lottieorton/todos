@@ -13,7 +13,7 @@ describe("todos service", () => {
   });
 
   describe("getAllTodos", () => {
-    it("Should return an array of todos on successful fetch", async () => {
+    it("Should return an array of todos on successful fetch with no categoryId", async () => {
       // arrange
       const mockTodos: Todo[] = [
         { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
@@ -28,6 +28,26 @@ describe("todos service", () => {
       const result = await getAllTodos();
       // assert
       expect(result).toEqual(mockTodos);
+      expect(fetch).toHaveBeenCalledWith("http://localhost:8080/todos");
+    });
+
+    it("Should return an array of todos on successful fetch with categoryId", async () => {
+      // arrange
+      const mockTodos: Todo[] = [
+        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+      ];
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockTodos,
+      } as Response);
+      // act
+      const result = await getAllTodos(1);
+      // assert
+      expect(result).toEqual(mockTodos);
+      expect(fetch).toHaveBeenCalledWith(
+        "http://localhost:8080/todos?category=1",
+      );
     });
 
     it("Should throw a FetchError for !response.ok", async () => {

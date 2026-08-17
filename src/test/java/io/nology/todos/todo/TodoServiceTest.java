@@ -44,12 +44,35 @@ public class TodoServiceTest {
     @InjectMocks
     private TodoService todoService;
 
+
     @Test
-    public void findAll_CallsFindAllWithCategory() {
+    public void findAllWithCategory_WhenNoCategoryId_CallsFindAllWithCategory() {
         // act
-        this.todoService.findAll();
+        this.todoService.findAll(null);
         // assert
         verify(this.repo).findAllWithCategory();
+    }
+
+    @Test
+    public void findAllWithCategory_WhenCategoryExists_CallsFindByCategoryId() {
+        // arrange
+        Category testCategory = new Category();
+        testCategory.setId(1L);
+        testCategory.setName("Test category");
+
+        when(this.categoryService.findById(anyLong())).thenReturn(Optional.of(testCategory));
+        // act
+        this.todoService.findAll(1L);
+        // assert
+        verify(this.repo).findByCategoryId(1L);
+    }
+
+    @Test
+    public void findAllWithCategory_WhenCategoryDoesNotExist_ThrowsException() {
+        // arrange
+        when(this.categoryService.findById(anyLong())).thenReturn(Optional.empty());
+        // assert
+        assertThrows(UnprocessableContentException.class, () -> this.todoService.findAll(1L));
     }
 
     @Test
@@ -71,7 +94,6 @@ public class TodoServiceTest {
 
         Todo testTodo = new Todo();
         testTodo.setName("New todo");
-        // testTodo.setCategory(testCategory);
 
        when(this.categoryService.findById(anyLong())).thenReturn(Optional.of(testCategory));
        when(this.mapper.map(data, Todo.class)).thenReturn(testTodo);

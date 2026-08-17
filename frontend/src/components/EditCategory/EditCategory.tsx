@@ -57,7 +57,7 @@ export default function EditCategory() {
     return <div>{categoriesDeleteError.message}</div>;
 
   return (
-    <div data-testid="edit-category">
+    <div data-testid="edit-category" className="editCategoryForm">
       <TodoForm
         formMethods={formMethods}
         onSubmit={onUpdateSubmit}

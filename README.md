@@ -151,7 +151,13 @@ This application is a full-stack task management system designed to help users o
 
 **16/08/2026 - Todo Edit & Deletion Endpoint Consumption**
 
-- Connected UI components to PUT and DELETE Todo API endpoints.
+- Connected UI components to PATCH and DELETE Todo API endpoints.
+- Expanded component test suites for edit and deletion states.
+
+**17/08/2026 - Category Edit Deletion & Filtering**
+
+- Connected UI components to PATCH and DELETE Category API endpoints.
+- Updated and consumed Todos GET endpoint to incorporate optional category filtering
 - Expanded component test suites for edit and deletion states.
 
 ---

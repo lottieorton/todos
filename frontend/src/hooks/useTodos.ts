@@ -9,10 +9,10 @@ import {
 
 export const TODOS_KEY = ["todos"];
 
-export function useTodos() {
+export function useTodos(categoryId?: number) {
   return useQuery<Todo[]>({
-    queryKey: TODOS_KEY,
-    queryFn: getAllTodos,
+    queryKey: [...TODOS_KEY, categoryId],
+    queryFn: () => getAllTodos(categoryId),
   });
 }
 
