@@ -10,7 +10,7 @@ export default function TodoList() {
     error,
   } = useTodos();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div data-testid="todoList">Loading...</div>;
   if (isTodosError) return <div>{error.message}</div>;
 
   return (

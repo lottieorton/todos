@@ -37,8 +37,8 @@ export default function EditTodo({ id, toggleIsEditing }: EditTodoProps) {
   };
 
   const formText = {
-    categorySelection: "Update category",
-    todoPlaceholder: "Update task name...",
+    categorySelection: "Choose category",
+    inputPlaceholder: "Update task name...",
     btn: "edit",
   } as const;
 

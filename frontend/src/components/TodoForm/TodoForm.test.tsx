@@ -19,6 +19,19 @@ vi.mock("../buttons/FormButton/FormButton", () => {
   };
 });
 
+vi.mock("../buttons/IconButton/IconButton", () => {
+  return {
+    default: vi.fn(({ children, color, handleClick }) => {
+      return (
+        <button data-testid="delete-btn" type="button" onClick={handleClick}>
+          {`Delete - ${color}`}
+          <div data-testid="children">{children}</div>
+        </button>
+      );
+    }),
+  };
+});
+
 vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
 }));
@@ -42,7 +55,7 @@ describe("TodoForm", () => {
   const mockOnSubmit = vi.fn();
   const mockFormText = {
     categorySelection: "Select a category",
-    todoPlaceholder: "Add a task...",
+    inputPlaceholder: "Add a name...",
     btn: "add",
   } as const;
 
@@ -57,15 +70,15 @@ describe("TodoForm", () => {
       />,
     );
     // act
-    const btn = screen.getByRole("button");
-    const nameInput = screen.getByPlaceholderText("Add a task...");
+    const addBtn = screen.getByRole("button");
+    const nameInput = screen.getByPlaceholderText("Add a name...");
     const icon = screen.getByLabelText("categoryIcon");
     const dropdownList = screen.getAllByRole("option");
     const addIcon = screen.getByLabelText("add");
     // assert
-    expect(btn).toBeInTheDocument();
+    expect(addBtn).toBeInTheDocument();
+    expect(addBtn).toHaveTextContent("Rounded false");
     expect(addIcon).toBeInTheDocument();
-    expect(btn).toHaveTextContent("Rounded false");
     expect(nameInput).toBeInTheDocument();
     expect(icon).toBeInTheDocument();
     expect(dropdownList).toHaveLength(3);
@@ -77,12 +90,12 @@ describe("TodoForm", () => {
     expect(dropdownList[2]).toHaveTextContent("Fitness");
   });
 
-  it("Should render form btn as round when isRounded is true", () => {
+  it("Should render form button as round when isRounded is true", () => {
     // arrange
     const { result } = renderHook(() => useForm<TodoFormData>());
     const mockFormText = {
       categorySelection: "Select a category",
-      todoPlaceholder: "Add a task...",
+      inputPlaceholder: "Add a name...",
       btn: "add",
       isBtnRounded: true,
     } as const;
@@ -94,17 +107,18 @@ describe("TodoForm", () => {
       />,
     );
     // act
-    const btn = screen.getByRole("button");
+    const addBtn = screen.getByRole("button");
     // assert
-    expect(btn).toBeInTheDocument();
+    expect(addBtn).toBeInTheDocument();
+    expect(addBtn).toHaveTextContent("Rounded true");
   });
 
-  it("Should render edit form btn when btn = edit", () => {
+  it("Should render edit form button when btn = edit", () => {
     // arrange
     const { result } = renderHook(() => useForm<TodoFormData>());
     const mockFormText = {
       categorySelection: "Select a category",
-      todoPlaceholder: "Add a task...",
+      inputPlaceholder: "Add a name...",
       btn: "edit",
     } as const;
     render(
@@ -115,13 +129,42 @@ describe("TodoForm", () => {
       />,
     );
     // act
-    const btn = screen.getByRole("button");
+    const updateBtn = screen.getByRole("button");
     const update = screen.getByTestId("children");
     // assert
-    expect(btn).toBeInTheDocument();
-    screen.debug();
-    expect(btn).toHaveTextContent("Rounded false Update");
+    expect(updateBtn).toBeInTheDocument();
+    expect(updateBtn).toHaveTextContent("Rounded false Update");
     expect(update).toHaveTextContent("Update");
+  });
+
+  it("Should render edit icon, edit form and delete buttons when btn = editDelete", () => {
+    // arrange
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    const mockhandleDelete = vi.fn();
+
+    const mockFormText = {
+      categorySelection: "Select a category",
+      inputPlaceholder: "Add a name...",
+      btn: "editDelete",
+    } as const;
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+        handleDelete={mockhandleDelete}
+      />,
+    );
+    // act
+    const editIcon = screen.getByLabelText("editIcon");
+    const updateFormBtn = screen.getByTestId("form-btn");
+    const deleteBtn = screen.getByTestId("delete-btn");
+    screen.debug();
+    // assert
+    expect(editIcon).toBeInTheDocument();
+    expect(updateFormBtn).toBeInTheDocument();
+    expect(deleteBtn).toBeInTheDocument();
+    expect(deleteBtn).toHaveTextContent("Delete - red");
   });
 
   it("Should render loading message while fetching categories", () => {
@@ -182,12 +225,66 @@ describe("TodoForm", () => {
     // act
     const btn = screen.getByRole("button");
     const nameInput =
-      screen.getByPlaceholderText<HTMLInputElement>("Add a task...");
+      screen.getByPlaceholderText<HTMLInputElement>("Add a name...");
     const dropdown = screen.getByRole("combobox");
     await user.selectOptions(dropdown, "2");
     await user.type(nameInput, "Run a 5km");
     await user.click(btn);
     // assert
     expect(mockOnSubmit).toHaveBeenCalledOnce();
+  });
+
+  it("Should call parents handleDelete when delete button clicked with selected category", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    const mockhandleDelete = vi.fn();
+
+    const mockFormText = {
+      categorySelection: "Select a category",
+      inputPlaceholder: "Add a name...",
+      btn: "editDelete",
+    } as const;
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+        handleDelete={mockhandleDelete}
+      />,
+    );
+    // act
+    const deleteBtn = screen.getByTestId("delete-btn");
+    const dropdown = screen.getByRole("combobox");
+    await user.selectOptions(dropdown, "2");
+    await user.click(deleteBtn);
+    // assert
+    expect(mockhandleDelete).toHaveBeenCalledOnce();
+  });
+
+  it("Should not call handleDelete when delete button clicked without category selected", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const { result } = renderHook(() => useForm<TodoFormData>());
+    const mockhandleDelete = vi.fn();
+
+    const mockFormText = {
+      categorySelection: "Select a category",
+      inputPlaceholder: "Add a name...",
+      btn: "editDelete",
+    } as const;
+    render(
+      <TodoForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+        handleDelete={mockhandleDelete}
+      />,
+    );
+    // act
+    const deleteBtn = screen.getByTestId("delete-btn");
+    await user.click(deleteBtn);
+    // assert
+    expect(mockhandleDelete).not.toHaveBeenCalled();
   });
 });

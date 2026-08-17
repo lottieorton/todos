@@ -5,6 +5,7 @@ import TodoList from "./components/TodoList/TodoList";
 import SidebarHeader from "./components/SidebarHeader/SidebarHeader";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AddTodo from "./components/AddTodo/AddTodo";
+import EditCategory from "./components/EditCategory/EditCategory";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ function App() {
         <Header />
         <CategoryForm />
         <AddTodo />
+        <EditCategory />
         <TodoList />
         <div className="sidebarBackground" data-testid="sidebarBackground" />
       </div>

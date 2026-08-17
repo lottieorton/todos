@@ -16,7 +16,7 @@ export default function IconButton({
 
   return (
     <button
-      type="submit"
+      type="button"
       onClick={handleClick}
       className={`${classes.iconBtn} ${classes[colorKey]}`}
     >

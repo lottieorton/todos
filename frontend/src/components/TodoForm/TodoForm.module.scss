@@ -40,6 +40,11 @@
   @include m.category-icon("large");
 }
 
+.btnContainer {
+  display: flex;
+  gap: 0.5em;
+}
+
 @include large-laptop {
   .category {
     font-size: 1.3em;
