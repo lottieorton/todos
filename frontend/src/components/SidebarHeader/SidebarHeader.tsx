@@ -5,7 +5,10 @@ export default function SidebarHeader() {
   return (
     <section className={classes.sidebarHeader + " sidebarHeader"}>
       <div className={classes.header}>
-        <i className={classes.icon + " fa-solid fa-list-check"}></i>
+        <i
+          className={classes.icon + " fa-solid fa-list-check"}
+          data-testid="checklistIcon"
+        ></i>
         <h2 className={classes.heading}>Task By Task</h2>
       </div>
       <TodoBar />

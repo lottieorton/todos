@@ -1,0 +1,130 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import { useCreateTodo } from "../../hooks/useTodos";
+import userEvent from "@testing-library/user-event";
+import AddTodo from "./AddTodo";
+
+vi.mock("../TodoForm/TodoForm", () => ({
+  default: vi.fn(({ formMethods, onSubmit, formText }) => {
+    const { ref, ...nameRegister } = formMethods.register("name");
+    return (
+      <div>
+        <div>{formText.todoPlaceholder}</div>
+        <div>{formText.categorySelection}</div>
+        <div>{formText.btn}</div>
+        <button
+          onClick={() => {
+            formMethods.setValue("name", "Test todo");
+            onSubmit({ name: "Test todo", categoryId: 1 });
+          }}
+        >
+          Add
+        </button>
+        <input
+          data-testid="input"
+          {...nameRegister}
+          ref={ref}
+          value={formMethods.watch("name") || ""}
+        />
+      </div>
+    );
+  }),
+}));
+
+vi.mock("../../hooks/useTodos", () => ({
+  useCreateTodo: vi.fn(),
+}));
+
+describe("AddTodo", () => {
+  const mockMutate = vi.fn(
+    (_data: string, options: { onSuccess: () => void }) => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+    },
+  );
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    vi.mocked(useCreateTodo).mockReturnValue({
+      mutate: mockMutate,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+  });
+
+  it("Should render TodoForm passing down formText props", () => {
+    // arrange
+    render(<AddTodo />);
+    // act
+    const nameInput = screen.getByText("Add a task...");
+    const categoryDropdowntext = screen.getByText("Select a category");
+    const btnInfo = screen.getByText("add");
+    // assert
+    expect(nameInput).toBeInTheDocument();
+    expect(categoryDropdowntext).toBeInTheDocument();
+    expect(btnInfo).toBeInTheDocument();
+  });
+
+  it("Should call createTodo with correct todo values", async () => {
+    // arrange
+    const user = userEvent.setup();
+    render(<AddTodo />);
+    // act
+    const btn = screen.getByRole("button");
+    await user.click(btn);
+    // assert
+    expect(mockMutate).toHaveBeenCalledOnce();
+    expect(mockMutate).toHaveBeenCalledWith(
+      { name: "Test todo", categoryId: 1 },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
+  });
+
+  it("Should reset the form onSuccess of creating a todo", async () => {
+    // arrange
+    const user = userEvent.setup();
+    render(<AddTodo />);
+    // act
+    const btn = screen.getByRole("button");
+    const input = screen.getByTestId("input");
+    await user.click(btn);
+    // assert
+    expect(mockMutate).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(input).toHaveValue("");
+    });
+  });
+
+  it("Should render error message if error with creating todo", async () => {
+    const user = userEvent.setup();
+    const createTodoMock = vi.fn();
+
+    vi.mocked(useCreateTodo).mockReturnValue({
+      mutate: createTodoMock,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+
+    const { rerender } = render(<AddTodo />);
+    // act
+    const btn = screen.getByRole("button");
+    await user.click(btn);
+    expect(createTodoMock).toHaveBeenCalledOnce();
+
+    vi.mocked(useCreateTodo).mockReturnValue({
+      mutate: createTodoMock,
+      isError: true,
+      error: new Error("Failed to create todo"),
+      isPending: false,
+    } as any);
+
+    rerender(<AddTodo />);
+
+    // assert
+    expect(screen.getByText("Failed to create todo")).toBeInTheDocument();
+    expect(createTodoMock).toHaveBeenCalledOnce();
+  });
+});

@@ -1,22 +1,51 @@
-import AddButton from "../Buttons/AddButton/AddButton";
+import { useCreateCategory } from "../../hooks/useCategories";
+import FormButton from "../buttons/FormButton/FormButton";
 import classes from "./CategoryForm.module.scss";
+import { useForm, type SubmitHandler } from "react-hook-form";
+
+interface CategoryFormData {
+  name: string;
+}
 
 export default function CategoryForm() {
+  const { mutate: createCategory, isError, error } = useCreateCategory();
+
+  const { register, handleSubmit, reset } = useForm<CategoryFormData>();
+
+  const onSubmit: SubmitHandler<CategoryFormData, void> = (d): void => {
+    if (d.name) {
+      createCategory(d.name, {
+        onSuccess: () => {
+          reset();
+        },
+      });
+    }
+  };
+
   return (
     <div className="categoryForm">
       <section className="section">
-        <form className={classes.form}>
-          <i className={`fa-solid fa-tag ${classes.icon}`}></i>
+        <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+          <i
+            className={`fa-solid fa-tag ${classes.icon}`}
+            data-testid="categoryIcon"
+          ></i>
           <input
+            {...register("name", { required: true })}
             type="text"
             className={classes.inputField}
             placeholder="Add a category..."
           />
-          <AddButton>
+          <FormButton isRounded>
             <i className="fa-solid fa-plus"></i>
-          </AddButton>
+          </FormButton>
         </form>
       </section>
+      {isError && (
+        <div>
+          {error?.message || "Failed to create category. Please try again."}
+        </div>
+      )}
     </div>
   );
 }
