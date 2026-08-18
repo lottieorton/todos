@@ -1,17 +1,28 @@
 import { useCategoryContext } from "../../context/CategoryContext";
+import type { Todo } from "../../interfaces/Todo";
 import FormButton from "../buttons/FormButton/FormButton";
 import classes from "./CategoryList.module.scss";
 
 interface CategoryListProps {
   categoryId: number | undefined;
   handleFilter: (id: number | undefined) => void;
+  todos: Todo[];
 }
 
 export default function CategoryList({
   categoryId,
   handleFilter,
+  todos,
 }: CategoryListProps) {
   const { categories, isCategoriesLoading } = useCategoryContext();
+
+  const categoriesWithCount = categories.map((c) => ({
+    ...c,
+    count: todos.filter((todo) => todo.category === c.name).length,
+    countCompleted: todos.filter(
+      (todo) => todo.category === c.name && todo.isComplete,
+    ).length,
+  }));
 
   const handleSubmit = (id: number): void => {
     if (id === -1) {
@@ -36,9 +47,11 @@ export default function CategoryList({
           handleSubmit(-1);
         }}
       >
-        <FormButton isSelected={categoryId === undefined}>All</FormButton>
+        <FormButton isSelected={categoryId === undefined}>
+          {`All - ${todos.filter((t) => t.isComplete).length} / ${todos.length}`}
+        </FormButton>
       </form>
-      {categories.map((c) => {
+      {categoriesWithCount.map((c) => {
         return (
           <form
             key={c.id}
@@ -48,7 +61,9 @@ export default function CategoryList({
               handleSubmit(c.id);
             }}
           >
-            <FormButton isSelected={categoryId === c.id}>{c.name}</FormButton>
+            <FormButton
+              isSelected={categoryId === c.id}
+            >{`${c.name} - ${c.countCompleted} / ${c.count}`}</FormButton>
           </form>
         );
       })}

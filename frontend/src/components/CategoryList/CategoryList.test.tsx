@@ -3,6 +3,7 @@ import type { Category } from "../../interfaces/Category";
 import CategoryList from "./CategoryList";
 import userEvent from "@testing-library/user-event";
 import { useCategoryContext } from "../../context/CategoryContext";
+import type { Todo } from "../../interfaces/Todo";
 
 vi.mock("../buttons/FormButton/FormButton", () => {
   return {
@@ -21,6 +22,8 @@ vi.mock("../../context/CategoryContext", () => ({
 }));
 
 describe("CategoryList", () => {
+  const mockHandleFilter = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -34,32 +37,51 @@ describe("CategoryList", () => {
       isCategoriesLoading: false,
     } as any);
   });
-  const mockHandleFilter = vi.fn();
 
-  it("Should render list of categories", () => {
+  const mockTodos: Todo[] = [
+    {
+      id: 1,
+      name: "Fill the dishwasher",
+      category: "Cleaning",
+      isComplete: false,
+    },
+    { id: 2, name: "Go to the gym", category: "Fitness", isComplete: true },
+  ];
+
+  it("Should render list of categories, with correct todo values", () => {
     // arrange
     render(
-      <CategoryList categoryId={undefined} handleFilter={mockHandleFilter} />,
+      <CategoryList
+        categoryId={undefined}
+        handleFilter={mockHandleFilter}
+        todos={mockTodos}
+      />,
     );
     // act
     const list = screen.getAllByRole("button");
     // assert
     expect(list).toHaveLength(3);
-    expect(list[0]).toHaveTextContent("All true");
-    expect(list[1]).toHaveTextContent("Cleaning false");
-    expect(list[2]).toHaveTextContent("Fitness false");
+    expect(list[0]).toHaveTextContent("All - 1 / 2 true");
+    expect(list[1]).toHaveTextContent("Cleaning - 0 / 1 false");
+    expect(list[2]).toHaveTextContent("Fitness - 1 / 1 false");
   });
 
   it("Should update selected category button if category id value", () => {
     // arrange
-    render(<CategoryList categoryId={1} handleFilter={mockHandleFilter} />);
+    render(
+      <CategoryList
+        categoryId={1}
+        handleFilter={mockHandleFilter}
+        todos={mockTodos}
+      />,
+    );
     // act
     const list = screen.getAllByRole("button");
     // assert
     expect(list).toHaveLength(3);
-    expect(list[0]).toHaveTextContent("All false");
-    expect(list[1]).toHaveTextContent("Cleaning true");
-    expect(list[2]).toHaveTextContent("Fitness false");
+    expect(list[0]).toHaveTextContent("All - 1 / 2 false");
+    expect(list[1]).toHaveTextContent("Cleaning - 0 / 1 true");
+    expect(list[2]).toHaveTextContent("Fitness - 1 / 1 false");
   });
 
   it("Should render only All button if no categories fetched", () => {
@@ -69,23 +91,31 @@ describe("CategoryList", () => {
       isCategoriesLoading: false,
     } as any);
     render(
-      <CategoryList categoryId={undefined} handleFilter={mockHandleFilter} />,
+      <CategoryList
+        categoryId={undefined}
+        handleFilter={mockHandleFilter}
+        todos={mockTodos}
+      />,
     );
     // act
     const list = screen.getAllByRole("button");
     // assert
     expect(list).toHaveLength(1);
-    expect(list[0]).toHaveAccessibleName("All true");
+    expect(list[0]).toHaveAccessibleName("All - 1 / 2 true");
   });
 
   it("Should call handleFilter with undefined when All button clicked", async () => {
     // arrange
     const user = userEvent.setup();
     render(
-      <CategoryList categoryId={undefined} handleFilter={mockHandleFilter} />,
+      <CategoryList
+        categoryId={undefined}
+        handleFilter={mockHandleFilter}
+        todos={mockTodos}
+      />,
     );
     // act
-    const allBtn = screen.getByRole("button", { name: "All true" });
+    const allBtn = screen.getByRole("button", { name: "All - 1 / 2 true" });
     await user.click(allBtn);
     // assert
     expect(mockHandleFilter).toHaveBeenCalledOnce();
@@ -96,10 +126,16 @@ describe("CategoryList", () => {
     // arrange
     const user = userEvent.setup();
     render(
-      <CategoryList categoryId={undefined} handleFilter={mockHandleFilter} />,
+      <CategoryList
+        categoryId={undefined}
+        handleFilter={mockHandleFilter}
+        todos={mockTodos}
+      />,
     );
     // act
-    const categoryBtn = screen.getByRole("button", { name: "Cleaning false" });
+    const categoryBtn = screen.getByRole("button", {
+      name: "Cleaning - 0 / 1 false",
+    });
     await user.click(categoryBtn);
     // assert
     expect(mockHandleFilter).toHaveBeenCalledOnce();
@@ -113,7 +149,11 @@ describe("CategoryList", () => {
       isCategoriesLoading: true,
     } as any);
     render(
-      <CategoryList categoryId={undefined} handleFilter={mockHandleFilter} />,
+      <CategoryList
+        categoryId={undefined}
+        handleFilter={mockHandleFilter}
+        todos={mockTodos}
+      />,
     );
     // act
     const loadingMsg = screen.getByText("Loading now...");

@@ -7,7 +7,7 @@ vi.mock("../Todo/Todo", () => {
     default: vi.fn(({ todo }: { todo: Todo }) => {
       return (
         <div data-testid={`todo-item-${todo.id}`}>
-          {todo.name}, {todo.category}
+          {`${todo.name}, ${todo.category}, ${todo.isComplete}`}
         </div>
       );
     }),
@@ -20,8 +20,13 @@ describe("TodoList", () => {
   });
 
   const mockTodos: Todo[] = [
-    { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-    { id: 2, name: "Go to the gym", category: "Fitness" },
+    {
+      id: 1,
+      name: "Fill the dishwasher",
+      category: "Cleaning",
+      isComplete: false,
+    },
+    { id: 2, name: "Go to the gym", category: "Fitness", isComplete: false },
   ];
 
   it("Should render list of Todos passing prop value to useTodos", () => {
@@ -31,8 +36,8 @@ describe("TodoList", () => {
     const todo1 = screen.getByTestId("todo-item-1");
     const todo2 = screen.getByTestId("todo-item-2");
     // assert
-    expect(todo1).toHaveTextContent("Fill the dishwasher, Cleaning");
-    expect(todo2).toHaveTextContent("Go to the gym, Fitness");
+    expect(todo1).toHaveTextContent("Fill the dishwasher, Cleaning, false");
+    expect(todo2).toHaveTextContent("Go to the gym, Fitness, false");
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
   });
 

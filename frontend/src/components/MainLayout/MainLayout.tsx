@@ -16,14 +16,21 @@ export default function MainLayout() {
   );
 
   const {
-    data: todos = [],
-    isLoading: isTodosLoading,
-    isError: isTodosError,
+    data: allTodos = [],
+    isLoading: isAllTodosLoading,
+    isError: isAllTodosError,
+  } = useTodos();
+
+  const {
+    data: filteredTodos = [],
+    isLoading: isFilteredTodosLoading,
+    isError: isFilteredTodosError,
   } = useTodos(filterCategoryId);
 
   const { isCategoriesError } = useCategoryContext();
 
-  const isGlobalError = isTodosError || isCategoriesError;
+  const isGlobalError =
+    isFilteredTodosError || isAllTodosError || isCategoriesError;
 
   return (
     <main className="main">
@@ -41,8 +48,12 @@ export default function MainLayout() {
           <CategoryList
             categoryId={filterCategoryId}
             handleFilter={setFilterCategoryId}
+            todos={allTodos}
           />
-          <TodoList todos={todos} isLoading={isTodosLoading} />
+          <TodoList
+            todos={filteredTodos}
+            isLoading={isFilteredTodosLoading || isAllTodosLoading}
+          />
           <div className="sidebarBackground" data-testid="sidebarBackground" />
         </>
       )}

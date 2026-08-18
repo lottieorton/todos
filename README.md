@@ -88,15 +88,17 @@ This application is a full-stack task management system designed to help users o
 ## Design Goals / Approach
 
 - **Mobile-First Responsive Design:** Styled to prioritise clean layout and user experience on smaller screens before expanding to desktop views.
-- **Automated Cache Management:** Leverages React Query custom hooks (`useTodos`, `useCreateTodo`, `useUpdateTodo`, `useDeleteTodo`, `useCategories`, `useCreateCategories`) to invalidate query caches automatically upon successful mutations, ensuring instantaneous UI updates.
+- **Automated Cache Management:** Leverages React Query custom hooks (`useTodos`, `useCreateTodo`, `useUpdateTodo`, `useDeleteTodo`, `useCategories`, `useCreateCategory`) to invalidate query caches automatically upon successful mutations, ensuring instantaneous UI updates.
 - **Separation of Concerns:** Clean architecture separating data fetching (services), state/cache logic (hooks), and UI components.
 
 ---
 
 ## Features
 
-- **Category Management:** Create and assign tasks under specific categories.
-- **Todo CRUD Operations:** Full capability to create, view, update, and delete todos.
+- **Category Management:** Create, view, update, and delete categories with live task count indicators.
+- **Category Filtering:** Filter tasks instantly by selecting a specific category.
+- **Todo CRUD Operations:** Full capability to create, view, update, and soft-delete (`isArchived`) todos in the database.
+- **Task Completion:** Toggle task completion (`isComplete`) with updated strikethrough styling and state persistence.
 - **Mobile-First Layout:** Responsive interface optimised for mobile screens before expanding to larger screen sizes.
 - **Cache Invalidation:** Automatic frontend UI updates immediately following backend database changes.
 - **Swagger Documentation:** Interactive API testing interface.
@@ -106,7 +108,7 @@ This application is a full-stack task management system designed to help users o
 ## Known Issues
 
 - **Error Handling:** User-facing error messaging and fallback UI states are currently basic and need further refinement.
-- **Incomplete Features:** UI controls for editing and deleting existing categories are currently undergoing backend-to-frontend integration.
+- **Unique Category Naming:** Users have the ability to create multiple categories with the same name. This affects the todo counts in the category filtering list.
 
 ---
 
@@ -114,9 +116,7 @@ This application is a full-stack task management system designed to help users o
 
 - **Live Demo Deployment:** Add a live demo of the application.
 - **Dynamic Completion Bar:** A progress bar that calculates and updates in real-time based on the percentage of completed tasks.
-- **Dashboard Summary:** A top-level summary section breaking down task statistics by category.
-- **Category Filtering:** Ability to filter todo list by selecting specific categories.
-- **Database Persisted States:** Implement `isChecked` state and `isArchived` soft deletes in the MySQL database schema and apply applicable logic to the UI.
+- **Unique Category Constraints:** Add database and API-level unique name constraints for categories.
 
 ---
 
@@ -157,8 +157,14 @@ This application is a full-stack task management system designed to help users o
 **17/08/2026 - Category Edit Deletion & Filtering**
 
 - Connected UI components to PATCH and DELETE Category API endpoints.
-- Updated and consumed Todos GET endpoint to incorporate optional category filtering
+- Updated and consumed Todos GET endpoint to incorporate optional category filtering.
 - Expanded component test suites for edit and deletion states.
+
+**18/08/2026 - Updated Error Handling, Soft Deletes and Progress Tracking**
+
+- Updated error handling across the frontend.
+- Refactored consumption of todos and categories endpoints into a consolidated hook approach.
+- Implemented `isArchived` soft deletes and `isComplete` persistence across backend and frontend.
 
 ---
 
@@ -166,6 +172,7 @@ This application is a full-stack task management system designed to help users o
 
 - **React Query Integration & Testing:** Mocking custom asynchronous hooks and managing `QueryClient` cache invalidation states inside component test wrappers.
 - **React Component and SCSS Maintenance:** Refactoring initial component structure and styling to support additional interactivity within the app.
+- **ModelMapper Strict Matching:** Resolving property name mapping edge cases with primitive vs wrapper boolean types (`isComplete`).
 
 ---
 

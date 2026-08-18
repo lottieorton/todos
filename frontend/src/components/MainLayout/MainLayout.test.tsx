@@ -35,17 +35,22 @@ vi.mock("../TodoList/TodoList", () => ({
       <div data-testid="todo-list">
         <div data-testid="todos">{todos[0].name}</div>
         <div data-testid="isTodosLoading">{`Is loading is ` + isLoading}</div>
+        <div data-testid="fileredTodosLength">{todos.length}</div>
       </div>
     );
   }),
 }));
 
 vi.mock("../CategoryList/CategoryList", () => ({
-  default: vi.fn(({ categoryId, handleFilter }) => {
+  default: vi.fn(({ categoryId, handleFilter, todos }) => {
     return (
-      <button data-testid="category-list" onClick={() => handleFilter(1)}>
-        {`Filter: ${categoryId}`}
-      </button>
+      <>
+        <button data-testid="category-list" onClick={() => handleFilter(1)}>
+          {`Filter: ${categoryId}`}
+        </button>
+        <div data-testid="todosCatList">{todos[0].name}</div>
+        <div data-testid="todosCatListLength">{todos.length}</div>
+      </>
     );
   }),
 }));
@@ -61,11 +66,24 @@ describe("MainLayout", () => {
       categoriesError: new Error("Failed to load categories"),
     });
 
-    vi.mocked(useTodos).mockReturnValue({
-      data: [{ id: 1, name: "A todo", category: "Test" }],
-      isLoading: false,
-      isError: false,
-    } as any);
+    vi.mocked(useTodos).mockImplementation((categoryId?: number) => {
+      if (categoryId === undefined) {
+        return {
+          data: [
+            { id: 1, name: "Hoover", category: "Cleaning" },
+            { id: 2, name: "Run a 5km", category: "Fitness" },
+          ],
+          isLoading: false,
+          isError: false,
+        } as any;
+      }
+
+      return {
+        data: [{ id: 1, name: "Hoover", category: "Cleaning" }],
+        isLoading: false,
+        isError: false,
+      } as any;
+    });
   });
 
   it("Should render nested component passing state", async () => {
@@ -88,8 +106,11 @@ describe("MainLayout", () => {
     expect(editCategory).toBeInTheDocument();
     expect(categoryList).toBeInTheDocument();
     expect(categoryList).toHaveTextContent("Filter: ");
+    expect(screen.getByTestId("todosCatList")).toHaveTextContent("Hoover");
+    expect(screen.getByTestId("todosCatListLength")).toHaveTextContent("2");
     expect(todoList).toBeInTheDocument();
-    expect(todoList.children[0]).toHaveTextContent("A todo");
+    expect(screen.getByTestId("fileredTodosLength")).toHaveTextContent("2");
+    expect(todoList.children[0]).toHaveTextContent("Hoover");
     expect(todoList.children[1]).toHaveTextContent("Is loading is false");
     expect(sidebarBackground).toBeInTheDocument();
   });
@@ -106,6 +127,8 @@ describe("MainLayout", () => {
     await user.click(categoryListBtn);
     // assert
     expect(categoryList).toHaveTextContent("Filter: 1");
+    expect(screen.getByTestId("todosCatListLength")).toHaveTextContent("2");
+    expect(screen.getByTestId("fileredTodosLength")).toHaveTextContent("1");
   });
 
   it("Should render error message when there is an error in fetching all from the database", async () => {
