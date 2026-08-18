@@ -50,11 +50,10 @@ export default function EditCategory() {
     btn: "editDelete",
   } as const;
 
-  if (isCategoriesUpdateError)
-    return <div>{categoriesUpdateError.message}</div>;
-
-  if (isCategoriesDeleteError)
-    return <div>{categoriesDeleteError.message}</div>;
+  const errorMsg =
+    (isCategoriesUpdateError && categoriesUpdateError.message) ||
+    (isCategoriesDeleteError && categoriesDeleteError.message) ||
+    null;
 
   return (
     <div data-testid="edit-category" className="editCategoryForm">
@@ -63,6 +62,7 @@ export default function EditCategory() {
         onSubmit={onUpdateSubmit}
         handleDelete={handleDelete}
         formText={formText}
+        errorMsg={errorMsg}
       />
     </div>
   );

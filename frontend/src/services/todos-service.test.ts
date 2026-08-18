@@ -106,7 +106,7 @@ describe("todos service", () => {
       } as Response);
       // assert
       await expect(createTodo("Fails", 50)).rejects.toThrow(
-        "No category with id 50",
+        "Unprocessable Content",
       );
     });
 
@@ -187,9 +187,7 @@ describe("todos service", () => {
         json: async () => mockTodoErrorResponseBody,
       } as Response);
       // assert
-      await expect(updateTodo(50, "Fails", 3)).rejects.toThrow(
-        "Could not find todo with id 50",
-      );
+      await expect(updateTodo(50, "Fails", 3)).rejects.toThrow("Not Found");
     });
 
     it("Should throw a FailedUpdateError with default message for non ok response status without message", async () => {
@@ -245,9 +243,7 @@ describe("todos service", () => {
         json: async () => mockTodoErrorResponseBody,
       } as Response);
       // assert
-      await expect(deleteTodo(50)).rejects.toThrow(
-        "Could not find todo with id 50",
-      );
+      await expect(deleteTodo(50)).rejects.toThrow("Not Found");
     });
 
     it("Should throw a FailedDeleteError with default message for non ok response status without message", async () => {

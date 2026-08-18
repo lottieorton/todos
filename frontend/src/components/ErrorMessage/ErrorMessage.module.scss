@@ -1,0 +1,6 @@
+@use "../../sass/variables/colors" as c;
+
+.errorMsg {
+  color: c.$main-red;
+  margin: 0;
+}

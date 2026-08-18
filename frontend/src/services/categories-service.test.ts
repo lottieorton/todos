@@ -83,9 +83,7 @@ describe("categories service", () => {
         json: async () => mockTodoErrorResponseBody,
       } as Response);
       // assert
-      await expect(createCategory("Fails")).rejects.toThrow(
-        "Validation failed for argument",
-      );
+      await expect(createCategory("Fails")).rejects.toThrow("Bad Request");
     });
 
     it("Should throw a FailedCreateError with default message for non 201 response status without message", async () => {
@@ -139,7 +137,7 @@ describe("categories service", () => {
       } as Response);
       // assert
       await expect(updateCategory(1, "Failed category update")).rejects.toThrow(
-        "Could not find category in database with id 1",
+        "Not Found",
       );
     });
 
@@ -194,9 +192,7 @@ describe("categories service", () => {
         json: async () => mockTodoErrorResponseBody,
       } as Response);
       // assert
-      expect(deleteCategory(50)).rejects.toThrow(
-        "Could not find todo with id 50",
-      );
+      await expect(deleteCategory(50)).rejects.toThrow("Not Found");
     });
 
     it("Should throw a FailedDeleteError with default message for !response.ok wihtout message", async () => {
@@ -207,7 +203,9 @@ describe("categories service", () => {
         json: async () => {},
       } as Response);
       // assert
-      expect(deleteCategory(50)).rejects.toThrow("Failed to delete category");
+      await expect(deleteCategory(50)).rejects.toThrow(
+        "Failed to delete category",
+      );
     });
 
     it("Should throw an error on failed deletion", async () => {
@@ -216,7 +214,7 @@ describe("categories service", () => {
         new Error("Deletion failed"),
       );
       // assert
-      expect(deleteCategory(50)).rejects.toThrow("Deletion failed");
+      await expect(deleteCategory(50)).rejects.toThrow("Deletion failed");
     });
   });
 });

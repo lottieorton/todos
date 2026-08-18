@@ -1,5 +1,6 @@
 import { useCreateCategory } from "../../hooks/useCategories";
 import FormButton from "../buttons/FormButton/FormButton";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import classes from "./CategoryForm.module.scss";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
@@ -22,6 +23,8 @@ export default function CategoryForm() {
     }
   };
 
+  const errorMsg = error?.message || null;
+
   return (
     <div className="categoryForm">
       <section className="section">
@@ -39,13 +42,13 @@ export default function CategoryForm() {
           <FormButton isRounded>
             <i className="fa-solid fa-plus"></i>
           </FormButton>
+          {isError && (
+            <div className={classes.errorMsg}>
+              <ErrorMessage msg={errorMsg} dataType="category" />
+            </div>
+          )}
         </form>
       </section>
-      {isError && (
-        <div>
-          {error?.message || "Failed to create category. Please try again."}
-        </div>
-      )}
     </div>
   );
 }

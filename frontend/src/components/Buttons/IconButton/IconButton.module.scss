@@ -13,7 +13,7 @@
   }
 
   &--red {
-    color: #ef4444;
+    color: c.$main-red;
   }
 
   @include large-laptop {

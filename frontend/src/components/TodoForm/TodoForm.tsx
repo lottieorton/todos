@@ -1,9 +1,10 @@
 import classes from "./TodoForm.module.scss";
-import { useCategories } from "../../hooks/useCategories";
 import { type SubmitHandler, type UseFormReturn } from "react-hook-form";
 import type { TodoFormData } from "../../interfaces/TodoFormData";
 import FormButton from "../buttons/FormButton/FormButton";
 import IconButton from "../buttons/IconButton/IconButton";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import { useCategoryContext } from "../../context/CategoryContext";
 
 interface TodoFormProps {
   formMethods: UseFormReturn<TodoFormData>;
@@ -15,6 +16,7 @@ interface TodoFormProps {
     btn: "add" | "edit" | "editDelete";
     isBtnRounded?: boolean;
   };
+  errorMsg?: string | null;
 }
 
 export default function TodoForm({
@@ -22,13 +24,9 @@ export default function TodoForm({
   handleDelete,
   onSubmit,
   formText: { categorySelection, inputPlaceholder, btn, isBtnRounded = false },
+  errorMsg,
 }: TodoFormProps) {
-  const {
-    data: categories = [],
-    isLoading,
-    isError: isCategoriesError,
-    error: categoriesError,
-  } = useCategories();
+  const { categories, isCategoriesLoading } = useCategoryContext();
 
   const { register, handleSubmit } = formMethods;
 
@@ -39,9 +37,7 @@ export default function TodoForm({
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-
-  if (isCategoriesError) return <div>{categoriesError.message}</div>;
+  if (isCategoriesLoading) return <div>Loading...</div>;
 
   return (
     <form
@@ -92,6 +88,7 @@ export default function TodoForm({
           )}
         </div>
       </div>
+      {errorMsg && <ErrorMessage msg={errorMsg} dataType="task" />}
     </form>
   );
 }

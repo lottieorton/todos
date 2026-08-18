@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import AddTodo from "./AddTodo";
 
 vi.mock("../TodoForm/TodoForm", () => ({
-  default: vi.fn(({ formMethods, onSubmit, formText }) => {
+  default: vi.fn(({ formMethods, onSubmit, formText, errorMsg }) => {
     const { ref, ...nameRegister } = formMethods.register("name");
     return (
       <div>
@@ -25,6 +25,7 @@ vi.mock("../TodoForm/TodoForm", () => ({
           ref={ref}
           value={formMethods.watch("name") || ""}
         />
+        <div data-testid="errorMsg">{errorMsg}</div>
       </div>
     );
   }),
@@ -61,10 +62,12 @@ describe("AddTodo", () => {
     const nameInput = screen.getByText("Add a task...");
     const categoryDropdowntext = screen.getByText("Select a category");
     const btnInfo = screen.getByText("add");
+    const errorMsg = screen.getByTestId("errorMsg");
     // assert
     expect(nameInput).toBeInTheDocument();
     expect(categoryDropdowntext).toBeInTheDocument();
     expect(btnInfo).toBeInTheDocument();
+    expect(errorMsg).toHaveTextContent("");
   });
 
   it("Should call createTodo with correct todo values", async () => {
@@ -99,7 +102,7 @@ describe("AddTodo", () => {
     });
   });
 
-  it("Should render error message if error with creating todo", async () => {
+  it("Should pass error message to form if error with creating todo", async () => {
     const user = userEvent.setup();
     const createTodoMock = vi.fn();
 
@@ -113,6 +116,8 @@ describe("AddTodo", () => {
     const { rerender } = render(<AddTodo />);
     // act
     const btn = screen.getByRole("button");
+    const errorMsg = screen.getByTestId("errorMsg");
+
     await user.click(btn);
     expect(createTodoMock).toHaveBeenCalledOnce();
 
@@ -126,7 +131,7 @@ describe("AddTodo", () => {
     rerender(<AddTodo />);
 
     // assert
-    expect(screen.getByText("Failed to create todo")).toBeInTheDocument();
+    expect(errorMsg).toHaveTextContent("Failed to create todo");
     expect(createTodoMock).toHaveBeenCalledOnce();
   });
 });

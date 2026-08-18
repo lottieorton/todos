@@ -98,6 +98,10 @@ h6 {
     grid-column: 2;
     grid-row: 5;
   }
+
+  .errorMsg {
+    grid-column: 2;
+  }
 }
 
 @include large-laptop {

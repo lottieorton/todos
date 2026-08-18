@@ -33,7 +33,7 @@ export default function AddTodo() {
     isBtnRounded: true,
   } as const;
 
-  if (isTodosError) return <div>{todosError.message}</div>;
+  const errorMsg = (isTodosError && todosError.message) || null;
 
   return (
     <div data-testid="add-todo">
@@ -41,6 +41,7 @@ export default function AddTodo() {
         formMethods={formMethods}
         onSubmit={onSubmit}
         formText={formText}
+        errorMsg={errorMsg}
       />
     </div>
   );

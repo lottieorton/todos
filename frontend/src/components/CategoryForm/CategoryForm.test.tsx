@@ -19,6 +19,14 @@ vi.mock("../../hooks/useCategories", () => ({
   useCreateCategory: vi.fn(),
 }));
 
+vi.mock("../ErrorMessage/ErrorMessage", () => {
+  return {
+    default: vi.fn(({ msg, dataType }) => {
+      return <div data-testid="errorMsg">{msg + " " + dataType}</div>;
+    }),
+  };
+});
+
 describe("CategoryForm", () => {
   const mockMutate = vi.fn(
     (_data: string, options: { onSuccess: () => void }) => {
@@ -91,33 +99,10 @@ describe("CategoryForm", () => {
     await user.click(btn);
     // assert
     await waitFor(() => {
-      expect(screen.getByText("Failed to create category")).toBeInTheDocument();
-    });
-  });
-
-  it("Should render the default error message when createCategory has an error with no message", async () => {
-    // arrange
-    vi.mocked(useCreateCategory).mockReturnValue({
-      mutate: vi.fn(),
-      isError: true,
-      error: new Error(),
-      isPending: false,
-    } as any);
-
-    render(<CategoryForm />);
-    const user = userEvent.setup();
-    // act
-    const input =
-      screen.getByPlaceholderText<HTMLInputElement>("Add a category...");
-    const btn = screen.getByTestId("add-btn");
-    await user.type(input, "New category");
-    expect(input.value).toBe("New category");
-    await user.click(btn);
-    // assert
-    await waitFor(() => {
-      expect(
-        screen.getByText("Failed to create category. Please try again."),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("errorMsg")).toBeInTheDocument();
+      expect(screen.getByTestId("errorMsg")).toHaveTextContent(
+        "Failed to create category category",
+      );
     });
   });
 });

@@ -1,10 +1,10 @@
 import { render, renderHook, screen } from "@testing-library/react";
 import TodoForm from "./TodoForm";
-import { useCategories } from "../../hooks/useCategories";
 import type { Category } from "../../interfaces/Category";
 import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
 import type { TodoFormData } from "../../interfaces/TodoFormData";
+import { useCategoryContext } from "../../context/CategoryContext";
 
 vi.mock("../buttons/FormButton/FormButton", () => {
   return {
@@ -32,8 +32,16 @@ vi.mock("../buttons/IconButton/IconButton", () => {
   };
 });
 
-vi.mock("../../hooks/useCategories", () => ({
-  useCategories: vi.fn(),
+vi.mock("../ErrorMessage/ErrorMessage", () => {
+  return {
+    default: vi.fn(({ msg, dataType }) => {
+      return <div data-testid="errorMsg">{msg + " " + dataType}</div>;
+    }),
+  };
+});
+
+vi.mock("../../context/CategoryContext", () => ({
+  useCategoryContext: vi.fn(),
 }));
 
 describe("TodoForm", () => {
@@ -45,11 +53,9 @@ describe("TodoForm", () => {
       { id: 2, name: "Fitness" },
     ];
 
-    vi.mocked(useCategories).mockReturnValue({
-      data: mockCategories,
-      isLoading: false,
-      isError: false,
-      error: null,
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: mockCategories,
+      isCategoriesLoading: false,
     } as any);
   });
   const mockOnSubmit = vi.fn();
@@ -167,11 +173,9 @@ describe("TodoForm", () => {
   });
 
   it("Should render loading message while fetching categories", () => {
-    vi.mocked(useCategories).mockReturnValue({
-      data: null,
-      isLoading: true,
-      isError: false,
-      error: null,
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: [],
+      isCategoriesLoading: true,
     } as any);
     const { result } = renderHook(() => useForm<TodoFormData>());
     render(
@@ -189,11 +193,9 @@ describe("TodoForm", () => {
 
   it("Should render error message if error with fetching categories", () => {
     // arrange
-    vi.mocked(useCategories).mockReturnValue({
-      data: null,
-      isLoading: false,
-      isError: true,
-      error: new Error("Failed to load categories"),
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: [],
+      isCategoriesLoading: false,
     } as any);
 
     const { result } = renderHook(() => useForm<TodoFormData>());
@@ -202,12 +204,14 @@ describe("TodoForm", () => {
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
+        errorMsg="Not Found"
       />,
     );
     // act
-    const errorMessage = screen.getByText("Failed to load categories");
+    const errorMessage = screen.getByTestId("errorMsg");
     // assert
     expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent("Not Found task");
   });
 
   it("Should call onSubmit prop when submit form", async () => {

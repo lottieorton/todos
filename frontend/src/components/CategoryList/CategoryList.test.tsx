@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { useCategories } from "../../hooks/useCategories";
 import type { Category } from "../../interfaces/Category";
 import CategoryList from "./CategoryList";
 import userEvent from "@testing-library/user-event";
+import { useCategoryContext } from "../../context/CategoryContext";
 
 vi.mock("../buttons/FormButton/FormButton", () => {
   return {
@@ -16,8 +16,8 @@ vi.mock("../buttons/FormButton/FormButton", () => {
   };
 });
 
-vi.mock("../../hooks/useCategories", () => ({
-  useCategories: vi.fn(),
+vi.mock("../../context/CategoryContext", () => ({
+  useCategoryContext: vi.fn(),
 }));
 
 describe("CategoryList", () => {
@@ -29,11 +29,9 @@ describe("CategoryList", () => {
       { id: 2, name: "Fitness" },
     ];
 
-    vi.mocked(useCategories).mockReturnValue({
-      data: mockCategories,
-      isLoading: false,
-      isError: false,
-      error: null,
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: mockCategories,
+      isCategoriesLoading: false,
     } as any);
   });
   const mockHandleFilter = vi.fn();
@@ -66,11 +64,9 @@ describe("CategoryList", () => {
 
   it("Should render only All button if no categories fetched", () => {
     // arrange
-    vi.mocked(useCategories).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      error: null,
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: [],
+      isCategoriesLoading: false,
     } as any);
     render(
       <CategoryList categoryId={undefined} handleFilter={mockHandleFilter} />,
@@ -108,5 +104,23 @@ describe("CategoryList", () => {
     // assert
     expect(mockHandleFilter).toHaveBeenCalledOnce();
     expect(mockHandleFilter).toHaveBeenCalledWith(1);
+  });
+
+  it("Should render loading message when fetching results are loading", () => {
+    // arrange
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: [],
+      isCategoriesLoading: true,
+    } as any);
+    render(
+      <CategoryList categoryId={undefined} handleFilter={mockHandleFilter} />,
+    );
+    // act
+    const loadingMsg = screen.getByText("Loading now...");
+    // assert
+    expect(loadingMsg).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "All true" }),
+    ).not.toBeInTheDocument();
   });
 });

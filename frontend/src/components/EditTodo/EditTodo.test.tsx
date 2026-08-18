@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import EditTodo from "./EditTodo";
 
 vi.mock("../TodoForm/TodoForm", () => ({
-  default: vi.fn(({ formMethods, onSubmit, formText }) => {
+  default: vi.fn(({ formMethods, onSubmit, formText, errorMsg }) => {
     const { ref, ...nameRegister } = formMethods.register("name");
     return (
       <div>
@@ -25,6 +25,7 @@ vi.mock("../TodoForm/TodoForm", () => ({
           ref={ref}
           value={formMethods.watch("name") || ""}
         />
+        <div data-testid="errorMsg">{errorMsg}</div>
       </div>
     );
   }),
@@ -63,10 +64,12 @@ describe("EditTodo", () => {
     const nameInput = screen.getByText("Update task name...");
     const categoryDropdowntext = screen.getByText("Choose category");
     const btnInfo = screen.getByText("edit");
+    const errorMsg = screen.getByTestId("errorMsg");
     // assert
     expect(nameInput).toBeInTheDocument();
     expect(categoryDropdowntext).toBeInTheDocument();
     expect(btnInfo).toBeInTheDocument();
+    expect(errorMsg).toHaveTextContent("");
   });
 
   it("Should call updateToDo with correct todo values", async () => {
@@ -135,6 +138,8 @@ describe("EditTodo", () => {
 
     // act
     const btn = screen.getByRole("button");
+    const errorMsg = screen.getByTestId("errorMsg");
+    expect(errorMsg).toHaveTextContent("");
     await user.click(btn);
     expect(updateTodoMock).toHaveBeenCalledOnce();
 
@@ -148,7 +153,7 @@ describe("EditTodo", () => {
     rerender(<EditTodo id={1} toggleIsEditing={mockToggleIsEditing} />);
 
     // assert
-    expect(screen.getByText("Failed to update todo")).toBeInTheDocument();
+    expect(errorMsg).toHaveTextContent("Failed to update todo");
     expect(updateTodoMock).toHaveBeenCalledOnce();
   });
 });

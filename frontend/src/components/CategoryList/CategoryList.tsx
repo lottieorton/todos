@@ -1,4 +1,4 @@
-import { useCategories } from "../../hooks/useCategories";
+import { useCategoryContext } from "../../context/CategoryContext";
 import FormButton from "../buttons/FormButton/FormButton";
 import classes from "./CategoryList.module.scss";
 
@@ -11,12 +11,7 @@ export default function CategoryList({
   categoryId,
   handleFilter,
 }: CategoryListProps) {
-  const {
-    data: categories = [],
-    isLoading,
-    isError: isCategoriesError,
-    error: categoriesError,
-  } = useCategories();
+  const { categories, isCategoriesLoading } = useCategoryContext();
 
   const handleSubmit = (id: number): void => {
     if (id === -1) {
@@ -25,6 +20,8 @@ export default function CategoryList({
     }
     handleFilter(id);
   };
+
+  if (isCategoriesLoading) return <div>Loading now...</div>;
 
   return (
     <section
