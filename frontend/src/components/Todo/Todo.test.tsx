@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import Todo from "./Todo";
 import userEvent from "@testing-library/user-event";
-import { useDeleteTodo } from "../../hooks/useTodos";
+import { useDeleteTodo, useUpdateTodo } from "../../hooks/useTodos";
 
 vi.mock("../../hooks/useTodos", () => ({
+  useUpdateTodo: vi.fn(),
   useDeleteTodo: vi.fn(),
 }));
 
@@ -44,8 +45,18 @@ vi.mock("../EditTodo/EditTodo", () => {
   };
 });
 
+vi.mock("../ErrorMessage/ErrorMessage", () => {
+  return {
+    default: vi.fn(({ msg, dataType }) => {
+      return <div data-testid="errorMsg">{msg + " " + dataType}</div>;
+    }),
+  };
+});
+
 describe("Todo", () => {
-  const mockMutate = vi.fn(
+  const mockUpdateMutate = vi.fn();
+
+  const mockDeleteMutate = vi.fn(
     (_data: unknown, options: { onSuccess: () => void }) => {
       if (options?.onSuccess) {
         options.onSuccess();
@@ -56,8 +67,15 @@ describe("Todo", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    vi.mocked(useUpdateTodo).mockReturnValue({
+      mutate: mockUpdateMutate,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+
     vi.mocked(useDeleteTodo).mockReturnValue({
-      mutate: mockMutate,
+      mutate: mockDeleteMutate,
       isError: false,
       error: null,
       isPending: false,
@@ -70,6 +88,7 @@ describe("Todo", () => {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
     render(<Todo todo={todoProps} />);
     // act
@@ -93,13 +112,14 @@ describe("Todo", () => {
     expect(editForm).not.toBeInTheDocument();
   });
 
-  it("Should complete the todo when check button clicked", async () => {
+  it("Should call updateTodo when check button clicked", async () => {
     // arrange
     const user = userEvent.setup();
     const todoProps = {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
     render(<Todo todo={todoProps} />);
     // act
@@ -107,26 +127,35 @@ describe("Todo", () => {
     expect(checkBtn).toHaveTextContent("Checked false");
     await user.click(checkBtn);
     // assert
-    expect(checkBtn).toHaveTextContent("Checked true");
+    expect(mockUpdateMutate).toHaveBeenCalledOnce();
+    expect(mockUpdateMutate).toHaveBeenCalledWith({ id: 1, isComplete: true });
   });
 
-  it("Should toggle the todo status when check button clicked twice", async () => {
+  it("Should render errorMessage when updateTodo errors after click", async () => {
     // arrange
+    vi.mocked(useDeleteTodo).mockReturnValue({
+      mutate: mockDeleteMutate,
+      isError: true,
+      error: new Error("Failed to delete todo"),
+      isPending: false,
+    } as any);
     const user = userEvent.setup();
     const todoProps = {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
-    render(<Todo todo={todoProps} />);
+    const { rerender } = render(<Todo todo={todoProps} />);
     // act
     const checkBtn = screen.getByTestId("check-btn");
     expect(checkBtn).toHaveTextContent("Checked false");
     await user.click(checkBtn);
-    expect(checkBtn).toHaveTextContent("Checked true");
-    await user.click(checkBtn);
+    rerender(<Todo todo={todoProps} />);
     // assert
-    expect(checkBtn).toHaveTextContent("Checked false");
+    expect(mockUpdateMutate).toHaveBeenCalledOnce();
+    expect(mockUpdateMutate).toHaveBeenCalledWith({ id: 1, isComplete: true });
+    expect(screen.getByText("Failed to delete todo task")).toBeInTheDocument();
   });
 
   it("Should load the edit todo form when edit button clicked", async () => {
@@ -136,6 +165,7 @@ describe("Todo", () => {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
     render(<Todo todo={todoProps} />);
     // act
@@ -155,6 +185,7 @@ describe("Todo", () => {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
     render(<Todo todo={todoProps} />);
     // act
@@ -174,6 +205,7 @@ describe("Todo", () => {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
     render(<Todo todo={todoProps} />);
     // act
@@ -187,29 +219,30 @@ describe("Todo", () => {
     expect(editForm).not.toBeInTheDocument();
   });
 
-  it("Should call deleteTodo/mutation when the delete button is clicked", async () => {
+  it("Should call deleteTodo when the delete button is clicked", async () => {
     // arrange
     const user = userEvent.setup();
     const todoProps = {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
     render(<Todo todo={todoProps} />);
     // act
     const deleteBtn = screen.getByTestId("icon-btn-red");
     await user.click(deleteBtn);
     // assert
-    expect(mockMutate).toHaveBeenCalledOnce();
-    expect(mockMutate).toHaveBeenCalledWith(1);
+    expect(mockDeleteMutate).toHaveBeenCalledOnce();
+    expect(mockDeleteMutate).toHaveBeenCalledWith(1);
   });
 
   it("Should render error message when deleting todo errors", async () => {
     // arrange
     vi.mocked(useDeleteTodo).mockReturnValue({
-      mutate: mockMutate,
-      isError: false,
-      error: null,
+      mutate: mockDeleteMutate,
+      isError: true,
+      error: new Error("Failed to delete todo"),
       isPending: false,
     } as any);
     const user = userEvent.setup();
@@ -217,21 +250,16 @@ describe("Todo", () => {
       id: 1,
       name: "Read",
       category: "Hobbies",
+      isComplete: false,
     };
     const { rerender } = render(<Todo todo={todoProps} />);
     // act
     const deleteBtn = screen.getByTestId("icon-btn-red");
     await user.click(deleteBtn);
-    vi.mocked(useDeleteTodo).mockReturnValue({
-      mutate: mockMutate,
-      isError: true,
-      error: new Error("Failed to delete todo"),
-      isPending: false,
-    } as any);
     rerender(<Todo todo={todoProps} />);
     // assert
-    expect(mockMutate).toHaveBeenCalledOnce();
-    expect(mockMutate).toHaveBeenCalledWith(1);
-    expect(screen.getByText("Failed to delete todo")).toBeInTheDocument();
+    expect(mockDeleteMutate).toHaveBeenCalledOnce();
+    expect(mockDeleteMutate).toHaveBeenCalledWith(1);
+    expect(screen.getByText("Failed to delete todo task")).toBeInTheDocument();
   });
 });

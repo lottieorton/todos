@@ -27,7 +27,10 @@ public class Todo {
     private Category category;
 
     @Column(nullable = false)
-    private boolean isArchived = false;
+    private Boolean isComplete = false;
+
+    @Column(nullable = false)
+    private Boolean isArchived = false;
 
     public Todo() {
     }
@@ -56,11 +59,19 @@ public class Todo {
         this.category = category;
     }
 
-    public boolean isArchived() {
+    public Boolean getIsComplete() {
+        return isComplete;
+    }
+
+    public void setIsComplete(Boolean isComplete) {
+        this.isComplete = isComplete;
+    }
+
+    public Boolean isArchived() {
         return isArchived;
     }
 
-    public void setArchived(boolean isArchived) {
+    public void setArchived(Boolean isArchived) {
         this.isArchived = isArchived;
     }
 

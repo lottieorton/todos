@@ -6,6 +6,7 @@ import {
   updateCategory,
 } from "../services/categories-service";
 import type { Category } from "../interfaces/Category";
+import { TODOS_KEY } from "./useTodos";
 
 export const CATEGORIES_KEY = ["categories"];
 
@@ -39,6 +40,7 @@ export function useUpdateCategory() {
     mutationFn: ({ id, name }) => updateCategory(id, name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY });
+      queryClient.invalidateQueries({ queryKey: TODOS_KEY });
     },
   });
 }

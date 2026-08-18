@@ -66,6 +66,7 @@ public class TodoEndToEndTest {
         todo2.setName("Test todo 2");
         todo2.setCategory(category);
         todo2.setArchived(false);
+        todo2.setIsComplete(true);
         todoRepo.saveAndFlush(todo2);
         Todo todo3 = new Todo();
         todo3.setName("Test todo 3");
@@ -79,6 +80,7 @@ public class TodoEndToEndTest {
         .body("$", hasSize(2))
         .body("name", hasItems("Test todo 1", "Test todo 2"))
         .body("category", hasItem("Test category"))
+        .body("isComplete", hasItems(false, true))
         .body(matchesJsonSchemaInClasspath("schemas/todo-list-schema.json"));
     }
 
@@ -141,6 +143,8 @@ public class TodoEndToEndTest {
         .then().statusCode(HttpStatus.OK.value())
         .body("name", equalTo("Test todo"))
         .body("category", equalTo("Test category"))
+        .body("isComplete", equalTo(false))
+        .body("isArchived", nullValue())
         .body(matchesJsonSchemaInClasspath("schemas/todo-schema.json"));
     }
 
@@ -191,6 +195,7 @@ public class TodoEndToEndTest {
         .statusCode(HttpStatus.CREATED.value())
         .body("name", equalTo("New todo"))
         .body("category", equalTo("Test category"))
+        .body("isComplete", equalTo(false))
         .body(matchesJsonSchemaInClasspath("schemas/todo-schema.json"));
     }
 
@@ -258,6 +263,7 @@ public class TodoEndToEndTest {
         Todo todo1 = new Todo();
         todo1.setName("Test todo");
         todo1.setCategory(category1);
+        todo1.setIsComplete(true);
         todoRepo.saveAndFlush(todo1);
         String todoId = todo1.getId().toString();
 
@@ -271,6 +277,7 @@ public class TodoEndToEndTest {
         .then().statusCode(HttpStatus.OK.value())
         .body("name", equalTo("Updated todo"))
         .body("category", equalTo("Test category 2"))
+        .body("isComplete", equalTo(true))
         .body(matchesJsonSchemaInClasspath("schemas/todo-schema.json"));
     }
 

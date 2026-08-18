@@ -4,13 +4,14 @@ import java.util.List;
 
 import io.nology.todos.todo.entities.Todo;
 
-public record TodoResponse(Long id, String name, String category) {
+public record TodoResponse(Long id, String name, String category, boolean isComplete) {
     
     public static TodoResponse of(Todo todo) {
         return new TodoResponse(
             todo.getId(), 
             todo.getName(), 
-            todo.getCategory().getName()
+            todo.getCategory().getName(),
+            todo.getIsComplete()
         );
     }
 

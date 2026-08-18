@@ -141,6 +141,7 @@ public class TodoServiceTest {
         
         UpdateTodoRequest data = new UpdateTodoRequest();
         data.setCategoryId(1L);
+        data.setIsComplete(true);
 
         Todo testTodo = new Todo();
         testTodo.setName("Existing todo");

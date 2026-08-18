@@ -4,8 +4,9 @@
   "properties": {
     "id": { "type": "integer" },
     "name": { "type": "string" },
-    "category": { "type": "string" }
+    "category": { "type": "string" },
+    "isComplete": { "type": "boolean" }
   },
-  "required": ["id", "name", "category"],
+  "required": ["id", "name", "category", "isComplete"],
   "additionalProperties": false
 }

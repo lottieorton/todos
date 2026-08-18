@@ -39,13 +39,14 @@ export const updateTodo = async (
   id: number,
   name?: string,
   categoryId?: number,
+  isComplete?: boolean,
 ): Promise<Todo> => {
   const response = await fetch(`http://localhost:8080/todos/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, categoryId }),
+    body: JSON.stringify({ name, categoryId, isComplete }),
   });
   if (!response.ok) {
     const errorResponseBody = await response.json().catch(() => null);

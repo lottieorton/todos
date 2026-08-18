@@ -16,8 +16,18 @@ describe("todos service", () => {
     it("Should return an array of todos on successful fetch with no categoryId", async () => {
       // arrange
       const mockTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-        { id: 2, name: "Go to the gym", category: "Fitness" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Fitness",
+          isComplete: false,
+        },
       ];
       vi.spyOn(window, "fetch").mockResolvedValueOnce({
         ok: true,
@@ -34,7 +44,12 @@ describe("todos service", () => {
     it("Should return an array of todos on successful fetch with categoryId", async () => {
       // arrange
       const mockTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       vi.spyOn(window, "fetch").mockResolvedValueOnce({
         ok: true,
@@ -78,6 +93,7 @@ describe("todos service", () => {
         id: 1,
         name: "Fill the dishwasher",
         category: "Cleaning",
+        isComplete: false,
       };
       vi.spyOn(window, "fetch").mockResolvedValueOnce({
         ok: true,
@@ -142,6 +158,7 @@ describe("todos service", () => {
         id: 1,
         name: "Updated task",
         category: "Cleaning",
+        isComplete: false,
       };
       vi.spyOn(window, "fetch").mockResolvedValueOnce({
         ok: true,
@@ -149,17 +166,18 @@ describe("todos service", () => {
         json: async () => mockUpdatedTodo,
       } as Response);
       // act
-      const result = await updateTodo(1, "Fill the dishwasher", 1);
+      const result = await updateTodo(1, "Fill the dishwasher", 1, false);
       // assert
       expect(result).toEqual(mockUpdatedTodo);
     });
 
-    it("Should return a todo on successful PATCH request with no new name or categoryId", async () => {
+    it("Should return a todo on successful PATCH request with no new data", async () => {
       // arrange
       const mockUpdatedTodo = {
         id: 1,
         name: "Updated task",
         category: "Cleaning",
+        isComplete: true,
       };
       vi.spyOn(window, "fetch").mockResolvedValueOnce({
         ok: true,
@@ -187,7 +205,9 @@ describe("todos service", () => {
         json: async () => mockTodoErrorResponseBody,
       } as Response);
       // assert
-      await expect(updateTodo(50, "Fails", 3)).rejects.toThrow("Not Found");
+      await expect(updateTodo(50, "Fails", 3, true)).rejects.toThrow(
+        "Not Found",
+      );
     });
 
     it("Should throw a FailedUpdateError with default message for non ok response status without message", async () => {
@@ -198,7 +218,7 @@ describe("todos service", () => {
         json: async () => {},
       } as Response);
       // assert
-      await expect(updateTodo(50, "Fails", 2)).rejects.toThrow(
+      await expect(updateTodo(50, "Fails", 2, true)).rejects.toThrow(
         "Failed to update todo",
       );
     });
@@ -209,7 +229,7 @@ describe("todos service", () => {
         new Error("Network connection error"),
       );
       // assert
-      await expect(updateTodo(1, "Fails", 2)).rejects.toThrow(
+      await expect(updateTodo(1, "Fails", 2, false)).rejects.toThrow(
         "Network connection error",
       );
     });
