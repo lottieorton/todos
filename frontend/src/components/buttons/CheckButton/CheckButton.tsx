@@ -1,4 +1,4 @@
-import classes from "./Checkbutton.module.scss";
+import classes from "./CheckButton.module.scss";
 
 interface CheckButtonProps {
   isComplete: boolean;
