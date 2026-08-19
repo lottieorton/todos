@@ -10,6 +10,8 @@ public class UpdateTodoRequest {
     @Min(1)
     private Long categoryId;
 
+    private Boolean isComplete;
+
     public UpdateTodoRequest() {
     }
 
@@ -27,5 +29,13 @@ public class UpdateTodoRequest {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Boolean getIsComplete() {
+        return isComplete;
+    }
+
+    public void setIsComplete(Boolean isComplete) {
+        this.isComplete = isComplete;
     }
 }

@@ -36,13 +36,15 @@ interface UpdateTodoPayload {
   id: number;
   name?: string;
   categoryId?: number;
+  isComplete?: boolean;
 }
 
 export function useUpdateTodo() {
   const queryClient = useQueryClient();
 
   return useMutation<Todo, Error, UpdateTodoPayload>({
-    mutationFn: ({ id, name, categoryId }) => updateTodo(id, name, categoryId),
+    mutationFn: ({ id, name, categoryId, isComplete }) =>
+      updateTodo(id, name, categoryId, isComplete),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TODOS_KEY });
     },

@@ -48,8 +48,18 @@ describe("useTodos hooks", () => {
     it("Should return todos on successful getAllTodos", async () => {
       //arrange
       const mockTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-        { id: 2, name: "Go to the gym", category: "Fitness" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Fitness",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos).mockResolvedValueOnce(mockTodos);
       // act
@@ -70,7 +80,12 @@ describe("useTodos hooks", () => {
     it("Should return todos on successful getAllTodos with category id value passed in", async () => {
       //arrange
       const mockTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos).mockResolvedValueOnce(mockTodos);
       // act
@@ -91,11 +106,26 @@ describe("useTodos hooks", () => {
     it("Should refetch todos on categoryId changing", async () => {
       //arrange
       const mockAllTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-        { id: 2, name: "Go to the gym", category: "Fitness" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Fitness",
+          isComplete: false,
+        },
       ];
       const mockFilteredTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos)
         .mockResolvedValueOnce(mockAllTodos)
@@ -148,6 +178,7 @@ describe("useTodos hooks", () => {
         id: 1,
         name: "Fill the dishwasher",
         category: "Cleaning",
+        isComplete: false,
       };
       const mockFormData = { name: "Fill the dishwasher", categoryId: 1 };
       vi.mocked(createTodo).mockResolvedValueOnce(mockTodo);
@@ -179,14 +210,30 @@ describe("useTodos hooks", () => {
         id: 2,
         name: "Go to the gym",
         category: "Fitness",
+        isComplete: false,
       };
       vi.mocked(createTodo).mockResolvedValueOnce(mockTodo);
       const mockInitialTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       const mockUpdatedTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-        { id: 2, name: "Go to the gym", category: "Fitness" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Fitness",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos)
         .mockResolvedValueOnce(mockInitialTodos)
@@ -227,7 +274,12 @@ describe("useTodos hooks", () => {
       );
       const mockFormData = { name: "Go to the gym", categoryId: 2 };
       const mockInitialTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos).mockResolvedValueOnce(mockInitialTodos);
 
@@ -269,11 +321,13 @@ describe("useTodos hooks", () => {
         id: 1,
         name: "Fill the dishwasher",
         category: "Cleaning",
+        isComplete: false,
       };
       const mockFormData = {
         id: 1,
         name: "Fill the dishwasher",
         categoryId: 1,
+        isComplete: false,
       };
       vi.mocked(updateTodo).mockResolvedValueOnce(mockUpdatedTodo);
       // act
@@ -293,6 +347,7 @@ describe("useTodos hooks", () => {
           mockFormData.id,
           mockFormData.name,
           mockFormData.categoryId,
+          mockFormData.isComplete,
         );
         expect(result.current.data).toEqual(mockUpdatedTodo);
         expect(result.current.isPending).toBe(false);
@@ -305,15 +360,36 @@ describe("useTodos hooks", () => {
         id: 2,
         name: "Go for a 5km run",
         category: "Fitness",
+        isComplete: false,
       };
       vi.mocked(updateTodo).mockResolvedValueOnce(mockUpdatedTodo);
       const mockInitialTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-        { id: 2, name: "Go to the gym", category: "Fitness" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Fitness",
+          isComplete: false,
+        },
       ];
       const mockUpdatedTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-        { id: 2, name: "Go for a 5km run", category: "Fitness" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go for a 5km run",
+          category: "Fitness",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos)
         .mockResolvedValueOnce(mockInitialTodos)
@@ -354,7 +430,12 @@ describe("useTodos hooks", () => {
       );
       const mockFormData = { id: 1, name: "Go to the gym", categoryId: 2 };
       const mockInitialTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos).mockResolvedValueOnce(mockInitialTodos);
 
@@ -416,11 +497,26 @@ describe("useTodos hooks", () => {
       //arrange
       vi.mocked(deleteTodo).mockResolvedValueOnce(true);
       const mockInitialTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
-        { id: 2, name: "Go to the gym", category: "Fitness" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Fitness",
+          isComplete: false,
+        },
       ];
       const mockUpdatedTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos)
         .mockResolvedValueOnce(mockInitialTodos)
@@ -458,7 +554,12 @@ describe("useTodos hooks", () => {
         new Error("Failed to delete todo"),
       );
       const mockInitialTodos: Todo[] = [
-        { id: 1, name: "Fill the dishwasher", category: "Cleaning" },
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
       ];
       vi.mocked(getAllTodos).mockResolvedValueOnce(mockInitialTodos);
 

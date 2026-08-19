@@ -1,10 +1,10 @@
 import { render, renderHook, screen } from "@testing-library/react";
-import TodoForm from "./TodoForm";
-import { useCategories } from "../../hooks/useCategories";
+import MultiFieldForm from "./MultiFieldForm";
 import type { Category } from "../../interfaces/Category";
 import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
-import type { TodoFormData } from "../../interfaces/TodoFormData";
+import type { MultiFieldFormData } from "../../interfaces/MultiFieldFormData";
+import { useCategoryContext } from "../../context/CategoryContext";
 
 vi.mock("../buttons/FormButton/FormButton", () => {
   return {
@@ -32,11 +32,19 @@ vi.mock("../buttons/IconButton/IconButton", () => {
   };
 });
 
-vi.mock("../../hooks/useCategories", () => ({
-  useCategories: vi.fn(),
+vi.mock("../ErrorMessage/ErrorMessage", () => {
+  return {
+    default: vi.fn(({ msg }) => {
+      return <div data-testid="errorMsg">{msg}</div>;
+    }),
+  };
+});
+
+vi.mock("../../context/CategoryContext", () => ({
+  useCategoryContext: vi.fn(),
 }));
 
-describe("TodoForm", () => {
+describe("MultiFieldForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -45,11 +53,9 @@ describe("TodoForm", () => {
       { id: 2, name: "Fitness" },
     ];
 
-    vi.mocked(useCategories).mockReturnValue({
-      data: mockCategories,
-      isLoading: false,
-      isError: false,
-      error: null,
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: mockCategories,
+      isCategoriesLoading: false,
     } as any);
   });
   const mockOnSubmit = vi.fn();
@@ -61,9 +67,9 @@ describe("TodoForm", () => {
 
   it("Should render form with list of categories in the dropdown, with an add, non-round btn", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -92,7 +98,7 @@ describe("TodoForm", () => {
 
   it("Should render form button as round when isRounded is true", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockFormText = {
       categorySelection: "Select a category",
       inputPlaceholder: "Add a name...",
@@ -100,7 +106,7 @@ describe("TodoForm", () => {
       isBtnRounded: true,
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -115,14 +121,14 @@ describe("TodoForm", () => {
 
   it("Should render edit form button when btn = edit", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockFormText = {
       categorySelection: "Select a category",
       inputPlaceholder: "Add a name...",
       btn: "edit",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -139,7 +145,7 @@ describe("TodoForm", () => {
 
   it("Should render edit icon, edit form and delete buttons when btn = editDelete", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
 
     const mockFormText = {
@@ -148,7 +154,7 @@ describe("TodoForm", () => {
       btn: "editDelete",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -166,56 +172,54 @@ describe("TodoForm", () => {
     expect(deleteBtn).toHaveTextContent("Delete - red");
   });
 
-  it("Should render loading message while fetching categories", () => {
-    vi.mocked(useCategories).mockReturnValue({
-      data: null,
-      isLoading: true,
-      isError: false,
-      error: null,
+  it("Should render loading icon while fetching categories", () => {
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: [],
+      isCategoriesLoading: true,
     } as any);
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
       />,
     );
     // act
-    const loadingMessage = screen.getByText("Loading...");
+    const loadingIcon = screen.getByLabelText("loading icon");
     // assert
-    expect(loadingMessage).toBeInTheDocument();
+    expect(loadingIcon).toBeInTheDocument();
   });
 
   it("Should render error message if error with fetching categories", () => {
     // arrange
-    vi.mocked(useCategories).mockReturnValue({
-      data: null,
-      isLoading: false,
-      isError: true,
-      error: new Error("Failed to load categories"),
+    vi.mocked(useCategoryContext).mockReturnValue({
+      categories: [],
+      isCategoriesLoading: false,
     } as any);
 
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
+        errorMsg="Not Found"
       />,
     );
     // act
-    const errorMessage = screen.getByText("Failed to load categories");
+    const errorMessage = screen.getByTestId("errorMsg");
     // assert
     expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent("Not Found");
   });
 
   it("Should call onSubmit prop when submit form", async () => {
     // arrange
     const user = userEvent.setup();
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -236,7 +240,7 @@ describe("TodoForm", () => {
   it("Should call parents handleDelete when delete button clicked with selected category", async () => {
     // arrange
     const user = userEvent.setup();
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
 
     const mockFormText = {
@@ -245,7 +249,7 @@ describe("TodoForm", () => {
       btn: "editDelete",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -261,10 +265,10 @@ describe("TodoForm", () => {
     expect(mockhandleDelete).toHaveBeenCalledOnce();
   });
 
-  it("Should not call handleDelete when delete button clicked without category selected", async () => {
+  it("Should render error message when delete button clicked without category selected", async () => {
     // arrange
     const user = userEvent.setup();
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
 
     const mockFormText = {
@@ -273,7 +277,7 @@ describe("TodoForm", () => {
       btn: "editDelete",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -285,5 +289,43 @@ describe("TodoForm", () => {
     await user.click(deleteBtn);
     // assert
     expect(mockhandleDelete).not.toHaveBeenCalled();
+    expect(screen.getByTestId("errorMsg")).toBeInTheDocument();
+    expect(screen.getByTestId("errorMsg")).toHaveTextContent(
+      "Must select a category",
+    );
+  });
+
+  it("Should remove error message when delete button clicked with category selected", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
+    const mockhandleDelete = vi.fn();
+
+    const mockFormText = {
+      categorySelection: "Select a category",
+      inputPlaceholder: "Add a name...",
+      btn: "editDelete",
+    } as const;
+    render(
+      <MultiFieldForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+        handleDelete={mockhandleDelete}
+      />,
+    );
+    // act
+    const deleteBtn = screen.getByTestId("delete-btn");
+    const dropdown = screen.getByRole("combobox");
+    await user.click(deleteBtn);
+    expect(mockhandleDelete).not.toHaveBeenCalled();
+    const errorMsg = screen.getByTestId("errorMsg");
+    expect(errorMsg).toHaveTextContent("Must select a category");
+    await user.selectOptions(dropdown, "2");
+    await user.click(deleteBtn);
+    // assert
+    // assert
+    expect(mockhandleDelete).toHaveBeenCalledOnce();
+    expect(errorMsg).not.toBeInTheDocument();
   });
 });

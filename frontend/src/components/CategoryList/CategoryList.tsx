@@ -1,22 +1,28 @@
-import { useCategories } from "../../hooks/useCategories";
-import FormButton from "../buttons/FormButton/FormButton";
+import { useCategoryContext } from "../../context/CategoryContext";
+import type { Todo } from "../../interfaces/Todo";
+import LargeButton from "../buttons/LargeButton/LargeButton";
 import classes from "./CategoryList.module.scss";
 
 interface CategoryListProps {
   categoryId: number | undefined;
   handleFilter: (id: number | undefined) => void;
+  todos: Todo[];
 }
 
 export default function CategoryList({
   categoryId,
   handleFilter,
+  todos,
 }: CategoryListProps) {
-  const {
-    data: categories = [],
-    isLoading,
-    isError: isCategoriesError,
-    error: categoriesError,
-  } = useCategories();
+  const { categories } = useCategoryContext();
+
+  const categoriesWithCount = categories.map((c) => ({
+    ...c,
+    count: todos.filter((todo) => todo.category === c.name).length,
+    countCompleted: todos.filter(
+      (todo) => todo.category === c.name && todo.isComplete,
+    ).length,
+  }));
 
   const handleSubmit = (id: number): void => {
     if (id === -1) {
@@ -39,9 +45,12 @@ export default function CategoryList({
           handleSubmit(-1);
         }}
       >
-        <FormButton isSelected={categoryId === undefined}>All</FormButton>
+        <LargeButton isSelected={categoryId === undefined}>
+          <div>All</div>
+          <div>{`${todos.filter((t) => t.isComplete).length} / ${todos.length}`}</div>
+        </LargeButton>
       </form>
-      {categories.map((c) => {
+      {categoriesWithCount.map((c) => {
         return (
           <form
             key={c.id}
@@ -51,7 +60,10 @@ export default function CategoryList({
               handleSubmit(c.id);
             }}
           >
-            <FormButton isSelected={categoryId === c.id}>{c.name}</FormButton>
+            <LargeButton isSelected={categoryId === c.id}>
+              <div>{`${c.name}`}</div>
+              <div>{`${c.countCompleted} / ${c.count}`}</div>
+            </LargeButton>
           </form>
         );
       })}

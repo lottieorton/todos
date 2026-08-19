@@ -83,8 +83,26 @@ describe("categories service", () => {
         json: async () => mockTodoErrorResponseBody,
       } as Response);
       // assert
+      await expect(createCategory("Fails")).rejects.toThrow("Bad Request");
+    });
+
+    it("Should throw a FailedCreateError for non 201 response status with database limit message", async () => {
+      // arrange
+      const mockTodoErrorResponseBody = {
+        timestamp: "2026-08-15T07:09:14.240081Z",
+        status: 400,
+        error: "Bad Request",
+        message: "Maximum limit of 15 categories reached",
+        path: "/categories",
+      };
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => mockTodoErrorResponseBody,
+      } as Response);
+      // assert
       await expect(createCategory("Fails")).rejects.toThrow(
-        "Validation failed for argument",
+        "Maximum category limit reached",
       );
     });
 
@@ -139,7 +157,7 @@ describe("categories service", () => {
       } as Response);
       // assert
       await expect(updateCategory(1, "Failed category update")).rejects.toThrow(
-        "Could not find category in database with id 1",
+        "Not Found",
       );
     });
 
@@ -194,9 +212,7 @@ describe("categories service", () => {
         json: async () => mockTodoErrorResponseBody,
       } as Response);
       // assert
-      expect(deleteCategory(50)).rejects.toThrow(
-        "Could not find todo with id 50",
-      );
+      await expect(deleteCategory(50)).rejects.toThrow("Not Found");
     });
 
     it("Should throw a FailedDeleteError with default message for !response.ok wihtout message", async () => {
@@ -207,7 +223,9 @@ describe("categories service", () => {
         json: async () => {},
       } as Response);
       // assert
-      expect(deleteCategory(50)).rejects.toThrow("Failed to delete category");
+      await expect(deleteCategory(50)).rejects.toThrow(
+        "Failed to delete category",
+      );
     });
 
     it("Should throw an error on failed deletion", async () => {
@@ -216,7 +234,7 @@ describe("categories service", () => {
         new Error("Deletion failed"),
       );
       // assert
-      expect(deleteCategory(50)).rejects.toThrow("Deletion failed");
+      await expect(deleteCategory(50)).rejects.toThrow("Deletion failed");
     });
   });
 });

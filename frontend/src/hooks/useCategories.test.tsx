@@ -14,12 +14,19 @@ import {
   updateCategory,
 } from "../services/categories-service";
 import type { Category } from "../interfaces/Category";
+import { getAllTodos } from "../services/todos-service";
+import type { Todo } from "../interfaces/Todo";
+import { useTodos } from "./useTodos";
 
 vi.mock("../services/categories-service", () => ({
   getAllCategories: vi.fn(),
   createCategory: vi.fn(),
   updateCategory: vi.fn(),
   deleteCategory: vi.fn(),
+}));
+
+vi.mock("../services/todos-service", () => ({
+  getAllTodos: vi.fn(),
 }));
 
 const createWrapper = () => {
@@ -254,6 +261,70 @@ describe("useCategories hooks", () => {
         expect(updateCategory).toHaveBeenCalledOnce();
         expect(getAllCategories).toHaveBeenCalledTimes(2);
         expect(result.current.query.data).toEqual(mockUpdatedCategories);
+      });
+    });
+
+    it("Should cause getAllTodos to be called on successful updateCategory", async () => {
+      // arrange
+      const mockCategory: Category = { id: 1, name: "Cleaning" };
+      vi.mocked(updateCategory).mockResolvedValueOnce(mockCategory);
+      const mockFormData = {
+        id: 1,
+        name: "Cleaning",
+      };
+      const mockInitialTodos: Todo[] = [
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Fitness",
+          isComplete: false,
+        },
+      ];
+      const mockRefetchedTodos: Todo[] = [
+        {
+          id: 1,
+          name: "Fill the dishwasher",
+          category: "Cleaning",
+          isComplete: false,
+        },
+        {
+          id: 2,
+          name: "Go to the gym",
+          category: "Workout",
+          isComplete: false,
+        },
+      ];
+      vi.mocked(getAllTodos)
+        .mockResolvedValueOnce(mockInitialTodos)
+        .mockResolvedValueOnce(mockRefetchedTodos);
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => ({
+          query: useTodos(),
+          mutation: useUpdateCategory(),
+        }),
+        { wrapper },
+      );
+      // act
+      await waitFor(() => {
+        expect(result.current.query.data).toBe(mockInitialTodos);
+      });
+      expect(getAllTodos).toHaveBeenCalledOnce();
+      act(() => {
+        result.current.mutation.mutate(mockFormData);
+      });
+      // assert
+      await waitFor(() => {
+        expect(result.current.mutation.isSuccess).toBe(true);
+        expect(updateCategory).toHaveBeenCalledOnce();
+        expect(getAllTodos).toHaveBeenCalledTimes(2);
+        expect(result.current.query.data).toEqual(mockRefetchedTodos);
       });
     });
 

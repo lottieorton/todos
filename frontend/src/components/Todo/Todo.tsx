@@ -4,42 +4,58 @@ import CheckButton from "../buttons/CheckButton/CheckButton";
 import IconButton from "../buttons/IconButton/IconButton";
 import classes from "./Todo.module.scss";
 import EditTodo from "../EditTodo/EditTodo";
-import { useDeleteTodo } from "../../hooks/useTodos";
+import { useDeleteTodo, useUpdateTodo } from "../../hooks/useTodos";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
 interface TodoProps {
   todo: Todo;
 }
 
 export default function Todo({ todo }: TodoProps) {
-  const [isComplete, setIsComplete] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  const {
+    mutate: updateTodo,
+    isError: isTodosUpdateError,
+    error: todosUpdateError,
+  } = useUpdateTodo();
+
+  const {
+    mutate: deleteTodo,
+    isError: isTodosDeleteError,
+    error: todosDeleteError,
+  } = useDeleteTodo();
+
   const toggleComplete = () => {
-    setIsComplete((prev) => !prev);
+    const data = {
+      id: todo.id,
+      isComplete: !todo.isComplete,
+    };
+    updateTodo(data);
   };
 
   const toggleIsEditing = () => {
     setIsEditing((prev) => !prev);
   };
 
-  const {
-    mutate: deleteTodo,
-    isError: isTodosError,
-    error: todosError,
-  } = useDeleteTodo();
-
   const handleDeleteClick = (): void => {
     deleteTodo(todo.id);
   };
 
-  if (isTodosError) return <div>{todosError.message}</div>;
+  const hasErrors =
+    (isTodosDeleteError && todosDeleteError.message) ||
+    (isTodosUpdateError && todosUpdateError.message) ||
+    null;
 
   return (
     <article className={classes.todo}>
-      <CheckButton isComplete={isComplete} toggleComplete={toggleComplete} />
+      <CheckButton
+        isComplete={todo.isComplete}
+        toggleComplete={toggleComplete}
+      />
       <div className={classes.content}>
         <h3
-          className={`${classes.heading} ${isComplete && classes.heading_checked}`}
+          className={`${classes.heading} ${todo.isComplete && classes.heading_checked}`}
         >
           {todo.name}
         </h3>
@@ -65,6 +81,12 @@ export default function Todo({ todo }: TodoProps) {
       {isEditing && (
         <div className={classes.editTodo}>
           <EditTodo id={todo.id} toggleIsEditing={toggleIsEditing} />
+        </div>
+      )}
+
+      {hasErrors && (
+        <div className={classes.errorMessage}>
+          <ErrorMessage msg={hasErrors} />
         </div>
       )}
     </article>

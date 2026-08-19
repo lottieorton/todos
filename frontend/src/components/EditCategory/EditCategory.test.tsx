@@ -6,38 +6,72 @@ import {
 import EditCategory from "./EditCategory";
 import userEvent from "@testing-library/user-event";
 
-vi.mock("../TodoForm/TodoForm", () => ({
-  default: vi.fn(({ formMethods, onSubmit, handleDelete, formText }) => {
-    const { ref, ...nameRegister } = formMethods.register("name");
-    return (
-      <div>
-        <div>{formText.inputPlaceholder}</div>
-        <div>{formText.categorySelection}</div>
-        <div>{formText.btn}</div>
-        <button
-          onClick={() => {
-            formMethods.setValue("name", "Test name");
-            onSubmit({ name: "Test name", categoryId: 1 });
-          }}
-        >
-          Update
-        </button>
-        <button
-          onClick={() => {
-            handleDelete(1);
-          }}
-        >
-          Delete
-        </button>
-        <input
-          data-testid="input"
-          {...nameRegister}
-          ref={ref}
-          value={formMethods.watch("name") || ""}
-        />
-      </div>
-    );
-  }),
+vi.mock("../MultiFieldForm/MultiFieldForm", () => ({
+  default: vi.fn(
+    ({ formMethods, onSubmit, handleDelete, formText, errorMsg }) => {
+      const { ref, ...nameRegister } = formMethods.register("name");
+      return (
+        <div>
+          <div>{formText.inputPlaceholder}</div>
+          <div>{formText.categorySelection}</div>
+          <div data-testid="errorMsg">{errorMsg}</div>
+          <div>{formText.btn}</div>
+          <button
+            data-testid="add-values-btn"
+            onClick={() => {
+              formMethods.setValue("name", "Test todo");
+              formMethods.setValue("categoryId", 1);
+              formMethods.handleSubmit(onSubmit)();
+              // onSubmit({ name: "Test todo", categoryId: 1 });
+            }}
+          >
+            Update
+          </button>
+          <button
+            data-testid="submit-nocat-btn"
+            onClick={() => {
+              formMethods.setValue("name", "test");
+              formMethods.handleSubmit(onSubmit)();
+            }}
+          >
+            Submit no-cat
+          </button>
+          <button
+            data-testid="submit-noname-btn"
+            onClick={() => {
+              formMethods.setValue("categoryId", 1);
+              formMethods.handleSubmit(onSubmit)();
+            }}
+          >
+            Submit blank name
+          </button>
+          <button
+            data-testid="submit-emptyname-btn"
+            onClick={() => {
+              formMethods.setValue("name", "    ");
+              formMethods.setValue("categoryId", 1);
+              formMethods.handleSubmit(onSubmit)();
+            }}
+          >
+            Submit empty name
+          </button>
+          <button
+            onClick={() => {
+              handleDelete(1);
+            }}
+          >
+            Delete
+          </button>
+          <input
+            data-testid="input"
+            {...nameRegister}
+            ref={ref}
+            value={formMethods.watch("name") || ""}
+          />
+        </div>
+      );
+    },
+  ),
 }));
 
 vi.mock("../../hooks/useCategories", () => ({
@@ -81,10 +115,12 @@ describe("EditCategory", () => {
     const nameInput = screen.getByText("Update category name...");
     const categoryDropdowntext = screen.getByText("Update category");
     const btnInfo = screen.getByText("editDelete");
+    const errorMsg = screen.getByTestId("errorMsg");
     // assert
     expect(nameInput).toBeInTheDocument();
     expect(categoryDropdowntext).toBeInTheDocument();
     expect(btnInfo).toBeInTheDocument();
+    expect(errorMsg).toHaveTextContent("");
   });
 
   it("Should call updateCategory with correct category data when onUpdateSubmit called in child form", async () => {
@@ -92,14 +128,69 @@ describe("EditCategory", () => {
     const user = userEvent.setup();
     render(<EditCategory />);
     // act
-    const updateBtn = screen.getByRole("button", { name: "Update" });
+    const updateBtn = screen.getByTestId("add-values-btn");
     await user.click(updateBtn);
     // assert
     expect(mockUpdateMutate).toHaveBeenCalledOnce();
     expect(mockUpdateMutate).toHaveBeenCalledWith(
-      { name: "Test name", id: 1 },
+      { name: "Test todo", id: 1 },
       expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
+  });
+
+  it("Should pass error message when onUpdateSubmit called in child form with no selected category", async () => {
+    // arrange
+    const user = userEvent.setup();
+    render(<EditCategory />);
+    // act
+    const updateBtn = screen.getByTestId("submit-nocat-btn");
+    const errorMsg = screen.getByTestId("errorMsg");
+    await user.click(updateBtn);
+    // assert
+    expect(mockUpdateMutate).not.toHaveBeenCalled();
+    expect(errorMsg).toHaveTextContent("Must select a category");
+  });
+
+  it("Should pass error message when onUpdateSubmit called in child form with no name value", async () => {
+    // arrange
+    const user = userEvent.setup();
+    render(<EditCategory />);
+    // act
+    const updateBtn = screen.getByTestId("submit-noname-btn");
+    const errorMsg = screen.getByTestId("errorMsg");
+    await user.click(updateBtn);
+    // assert
+    expect(mockUpdateMutate).not.toHaveBeenCalled();
+    expect(errorMsg).toHaveTextContent("Must enter a name");
+  });
+
+  it("Should pass error message when onUpdateSubmit called in child form with an empty name value", async () => {
+    // arrange
+    const user = userEvent.setup();
+    render(<EditCategory />);
+    // act
+    const updateBtn = screen.getByTestId("submit-emptyname-btn");
+    const errorMsg = screen.getByTestId("errorMsg");
+    await user.click(updateBtn);
+    // assert
+    expect(mockUpdateMutate).not.toHaveBeenCalled();
+    expect(errorMsg).toHaveTextContent("Must enter a name");
+  });
+
+  it("Should reset empty field error message when values are present in submitted form", async () => {
+    // arrange
+    const user = userEvent.setup();
+    render(<EditCategory />);
+    // act
+    const emptyUpdateBtn = screen.getByTestId("submit-nocat-btn");
+    const successfulupdateBtn = screen.getByTestId("add-values-btn");
+    const errorMsg = screen.getByTestId("errorMsg");
+    await user.click(emptyUpdateBtn);
+    expect(mockUpdateMutate).not.toHaveBeenCalled();
+    expect(errorMsg).toHaveTextContent("Must select a category");
+    // assert
+    await user.click(successfulupdateBtn);
+    expect(errorMsg).toHaveTextContent("");
   });
 
   it("Should reset the child form onSuccess of updating a category", async () => {

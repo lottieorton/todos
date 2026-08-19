@@ -26,6 +26,12 @@ public class Todo {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Column(nullable = false)
+    private Boolean isComplete = false;
+
+    @Column(nullable = false)
+    private Boolean isArchived = false;
+
     public Todo() {
     }
 
@@ -51,6 +57,22 @@ public class Todo {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Boolean getIsComplete() {
+        return isComplete;
+    }
+
+    public void setIsComplete(Boolean isComplete) {
+        this.isComplete = isComplete;
+    }
+
+    public Boolean isArchived() {
+        return isArchived;
+    }
+
+    public void setArchived(Boolean isArchived) {
+        this.isArchived = isArchived;
     }
 
 }

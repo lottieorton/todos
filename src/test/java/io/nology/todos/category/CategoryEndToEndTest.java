@@ -114,6 +114,26 @@ public class CategoryEndToEndTest {
         .body(matchesJsonSchemaInClasspath("schemas/api-error-schema.json")); 
     }
 
+    @Test
+    public void createCategory_FullCategoryTable_ReturnsBadRequest() {
+        // arrange
+        for(int i = 1; i <= 15; i++) {
+            Category newCategory = new Category();
+            newCategory.setName("Test category " + i);
+            categoryRepo.saveAndFlush(newCategory);
+        }
+        CreateCategoryRequest data = new CreateCategoryRequest();
+        data.setName("Test category");
+        // act
+        given()
+        .contentType(ContentType.JSON).body(data)
+        .when().post("/categories")
+        // assert
+        .then().statusCode(HttpStatus.BAD_REQUEST.value())
+        .body("error", equalTo("Bad Request"))
+        .body("message", equalTo("Maximum limit of 15 categories reached"))
+        .body(matchesJsonSchemaInClasspath("schemas/api-error-schema.json")); 
+    }
     // updateById
 
     @Test

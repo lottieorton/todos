@@ -1,13 +1,15 @@
-import classes from "./TodoForm.module.scss";
-import { useCategories } from "../../hooks/useCategories";
+import classes from "./MultiFieldForm.module.scss";
 import { type SubmitHandler, type UseFormReturn } from "react-hook-form";
-import type { TodoFormData } from "../../interfaces/TodoFormData";
+import type { MultiFieldFormData } from "../../interfaces/MultiFieldFormData";
 import FormButton from "../buttons/FormButton/FormButton";
 import IconButton from "../buttons/IconButton/IconButton";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import { useCategoryContext } from "../../context/CategoryContext";
+import { useState } from "react";
 
-interface TodoFormProps {
-  formMethods: UseFormReturn<TodoFormData>;
-  onSubmit: SubmitHandler<TodoFormData>;
+interface MultiFieldFormProps {
+  formMethods: UseFormReturn<MultiFieldFormData>;
+  onSubmit: SubmitHandler<MultiFieldFormData>;
   handleDelete?: (id: number) => void;
   formText: {
     categorySelection: string;
@@ -15,37 +17,35 @@ interface TodoFormProps {
     btn: "add" | "edit" | "editDelete";
     isBtnRounded?: boolean;
   };
+  errorMsg?: string | null;
 }
 
-export default function TodoForm({
+export default function MultiFieldForm({
   formMethods,
   handleDelete,
   onSubmit,
   formText: { categorySelection, inputPlaceholder, btn, isBtnRounded = false },
-}: TodoFormProps) {
-  const {
-    data: categories = [],
-    isLoading,
-    isError: isCategoriesError,
-    error: categoriesError,
-  } = useCategories();
+  errorMsg,
+}: MultiFieldFormProps) {
+  const { categories, isCategoriesLoading } = useCategoryContext();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit } = formMethods;
 
   const handleDeleteClick = () => {
     const selectedCategory = formMethods.getValues("categoryId");
+    if (!selectedCategory) setErrorMessage("Must select a category");
     if (selectedCategory && handleDelete) {
+      setErrorMessage(null);
       handleDelete(selectedCategory);
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-
-  if (isCategoriesError) return <div>{categoriesError.message}</div>;
+  const isActiveError = errorMessage || errorMsg;
 
   return (
     <form
-      className={classes.form + " section todoForm"}
+      className={classes.form + " section multiFieldForm"}
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className={classes.categorySection}>
@@ -70,6 +70,14 @@ export default function TodoForm({
             );
           })}
         </select>
+        {isCategoriesLoading && (
+          <div>
+            <i
+              className={`fa-solid fa-spinner ${classes.loadingIcon}`}
+              aria-label="loading icon"
+            ></i>
+          </div>
+        )}
       </div>
       <div className={classes.todo}>
         <input
@@ -92,6 +100,7 @@ export default function TodoForm({
           )}
         </div>
       </div>
+      {isActiveError && <ErrorMessage msg={isActiveError} />}
     </form>
   );
 }

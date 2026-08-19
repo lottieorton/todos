@@ -52,7 +52,7 @@ public class TodoEndToEndTest {
     }
 
     @Test
-    public void getAllTodos_TodosInDB_ReturnsOKAndArrayOfTodos() {
+    public void getAllTodos_TodosInDB_ReturnsOKAndArrayOfNonArchivedTodos() {
         // arrange
         Category category = new Category();
         category.setName("Test category");
@@ -60,11 +60,19 @@ public class TodoEndToEndTest {
         Todo todo1 = new Todo();
         todo1.setName("Test todo 1");
         todo1.setCategory(category);
+        todo1.setArchived(false);
         todoRepo.saveAndFlush(todo1);
         Todo todo2 = new Todo();
         todo2.setName("Test todo 2");
         todo2.setCategory(category);
+        todo2.setArchived(false);
+        todo2.setIsComplete(true);
         todoRepo.saveAndFlush(todo2);
+        Todo todo3 = new Todo();
+        todo3.setName("Test todo 3");
+        todo3.setCategory(category);
+        todo3.setArchived(true);
+        todoRepo.saveAndFlush(todo3);
         // act
         given().when().get("/todos")
         // assert
@@ -72,6 +80,7 @@ public class TodoEndToEndTest {
         .body("$", hasSize(2))
         .body("name", hasItems("Test todo 1", "Test todo 2"))
         .body("category", hasItem("Test category"))
+        .body("isComplete", hasItems(false, true))
         .body(matchesJsonSchemaInClasspath("schemas/todo-list-schema.json"));
     }
 
@@ -115,7 +124,6 @@ public class TodoEndToEndTest {
         .body(matchesJsonSchemaInClasspath("schemas/api-error-schema.json"));
     }
 
-
     // getById
 
     @Test
@@ -135,9 +143,10 @@ public class TodoEndToEndTest {
         .then().statusCode(HttpStatus.OK.value())
         .body("name", equalTo("Test todo"))
         .body("category", equalTo("Test category"))
+        .body("isComplete", equalTo(false))
+        .body("isArchived", nullValue())
         .body(matchesJsonSchemaInClasspath("schemas/todo-schema.json"));
     }
-
 
     @Test
     public void getTodoById_IdNotInDB_NotFound() {
@@ -186,6 +195,7 @@ public class TodoEndToEndTest {
         .statusCode(HttpStatus.CREATED.value())
         .body("name", equalTo("New todo"))
         .body("category", equalTo("Test category"))
+        .body("isComplete", equalTo(false))
         .body(matchesJsonSchemaInClasspath("schemas/todo-schema.json"));
     }
 
@@ -253,6 +263,7 @@ public class TodoEndToEndTest {
         Todo todo1 = new Todo();
         todo1.setName("Test todo");
         todo1.setCategory(category1);
+        todo1.setIsComplete(true);
         todoRepo.saveAndFlush(todo1);
         String todoId = todo1.getId().toString();
 
@@ -266,6 +277,7 @@ public class TodoEndToEndTest {
         .then().statusCode(HttpStatus.OK.value())
         .body("name", equalTo("Updated todo"))
         .body("category", equalTo("Test category 2"))
+        .body("isComplete", equalTo(true))
         .body(matchesJsonSchemaInClasspath("schemas/todo-schema.json"));
     }
 
@@ -389,13 +401,14 @@ public class TodoEndToEndTest {
     // deleteById
 
     @Test
-    public void deleteById_SuccessfulDelete_ReturnsNoContent() {
+    public void deleteById_SuccessfulSoftDelete_ReturnsNoContent() {
         // arrange
         Category category1 = new Category();
         category1.setName("Test category 1");
         categoryRepo.saveAndFlush(category1);
         Todo todo1 = new Todo();
         todo1.setName("Test todo");
+        todo1.setArchived(false);
         todo1.setCategory(category1);
         todoRepo.saveAndFlush(todo1);
         String todoId = todo1.getId().toString();
@@ -414,6 +427,27 @@ public class TodoEndToEndTest {
         .then().statusCode(HttpStatus.NOT_FOUND.value())
         .body("error", equalTo("Not Found"))
         .body("message", equalTo("Could not find todo with id " + id))
+        .body(matchesJsonSchemaInClasspath("schemas/api-error-schema.json"));
+    }
+
+    @Test
+    public void deleteById_TodoAlreadyArchived_ReturnsNotFound() {
+        // arrange
+        Category category1 = new Category();
+        category1.setName("Test category 1");
+        categoryRepo.saveAndFlush(category1);
+        Todo todo1 = new Todo();
+        todo1.setName("Test todo");
+        todo1.setArchived(true);
+        todo1.setCategory(category1);
+        todoRepo.saveAndFlush(todo1);
+        String todoId = todo1.getId().toString();
+        // act
+        given().when().delete("/todos/" + todoId)
+        // assert
+        .then().statusCode(HttpStatus.NOT_FOUND.value())
+        .body("error", equalTo("Not Found"))
+        .body("message", equalTo("Could not find todo with id " + todoId))
         .body(matchesJsonSchemaInClasspath("schemas/api-error-schema.json"));
     }
 

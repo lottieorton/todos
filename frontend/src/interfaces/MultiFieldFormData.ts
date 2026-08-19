@@ -1,4 +1,4 @@
-export interface TodoFormData {
+export interface MultiFieldFormData {
   name: string;
   categoryId: number;
 }

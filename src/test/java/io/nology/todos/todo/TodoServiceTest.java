@@ -141,6 +141,7 @@ public class TodoServiceTest {
         
         UpdateTodoRequest data = new UpdateTodoRequest();
         data.setCategoryId(1L);
+        data.setIsComplete(true);
 
         Todo testTodo = new Todo();
         testTodo.setName("Existing todo");
@@ -206,10 +207,11 @@ public class TodoServiceTest {
     }
 
     @Test
-    public void deleteById_WhenTodoExists_DeletesFromDBReturnsTrue() {
+    public void deleteById_WhenTodoExists_UpdatesIsArchivedToTrueReturnsTrue() {
         // arrange
         Todo testTodo = new Todo();
         testTodo.setName("Existing todo");
+        testTodo.setArchived(false);
 
         when(this.repo.findById(1L)).thenReturn(Optional.of(testTodo));
 
@@ -219,12 +221,29 @@ public class TodoServiceTest {
         // assert
         assertTrue(result);
         verify(this.todoService).findById(1L);
-        verify(this.repo).delete(testTodo);
-
+        verify(this.repo).saveAndFlush(argThat(todo -> todo.isArchived() == true));
     }
 
     @Test
-    public void deleteById_WhenTodoDoesNotExist_DoesNotCallDeleteReturnsFalse() {
+    public void deleteById_WhenTodoExistsAndIsArchived_ReturnsFalse() {
+        // arrange
+        Todo testTodo = new Todo();
+        testTodo.setName("Existing todo");
+        testTodo.setArchived(true);
+
+        when(this.repo.findById(1L)).thenReturn(Optional.of(testTodo));
+
+        // act
+        boolean result = this.todoService.deleteById(1L);
+
+        // assert
+        assertFalse(result);
+        verify(this.todoService).findById(1L);
+        verify(this.repo, never()).saveAndFlush(any(Todo.class));
+    }
+
+    @Test
+    public void deleteById_WhenTodoDoesNotExist_DoesNotUpdateTodoFalse() {
         // arrange
         when(this.repo.findById(1L)).thenReturn(Optional.empty());
 
@@ -234,7 +253,7 @@ public class TodoServiceTest {
         // assert
         assertFalse(result);
         verify(this.todoService).findById(1L);
-        verify(this.repo, never()).delete(any(Todo.class));
+        verify(this.repo, never()).saveAndFlush(any(Todo.class));
 
     }
 

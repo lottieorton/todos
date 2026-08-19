@@ -29,7 +29,7 @@ export const createTodo = async (
   if (response.status !== 201) {
     const errorResponseBody = await response.json().catch(() => null);
     throw new FailedCreateError(
-      errorResponseBody?.message ?? "Failed to create todo",
+      errorResponseBody?.error ?? "Failed to create todo",
     );
   }
   return response.json();
@@ -39,18 +39,19 @@ export const updateTodo = async (
   id: number,
   name?: string,
   categoryId?: number,
+  isComplete?: boolean,
 ): Promise<Todo> => {
   const response = await fetch(`http://localhost:8080/todos/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, categoryId }),
+    body: JSON.stringify({ name, categoryId, isComplete }),
   });
   if (!response.ok) {
     const errorResponseBody = await response.json().catch(() => null);
     throw new FailedUpdateError(
-      errorResponseBody?.message ?? "Failed to update todo",
+      errorResponseBody?.error ?? "Failed to update todo",
     );
   }
   return response.json();
@@ -63,7 +64,7 @@ export const deleteTodo = async (id: number): Promise<boolean> => {
   if (!response.ok) {
     const errorResponseBody = await response?.json().catch(() => null);
     throw new FailedDeleteError(
-      errorResponseBody?.message ?? "Failed to delete todo",
+      errorResponseBody?.error ?? "Failed to delete todo",
     );
   }
   return true;

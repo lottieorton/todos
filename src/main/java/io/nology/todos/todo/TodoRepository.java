@@ -13,7 +13,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long>{
 
     // Query does an upfront left join of todos and categories - prevents doing individual joins when creating the todo response
     @EntityGraph(attributePaths = "category")
-    @Query("SELECT t FROM Todo t")
+    @Query("SELECT t FROM Todo t WHERE t.isArchived = false")
     List<Todo> findAllWithCategory();
 
     @EntityGraph(attributePaths = "category")

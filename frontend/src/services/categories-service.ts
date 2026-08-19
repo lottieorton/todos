@@ -24,8 +24,11 @@ export const createCategory = async (name: string): Promise<Category> => {
   });
   if (response.status != 201) {
     const errorResponseBody = await response.json().catch(() => null);
+    if (errorResponseBody?.message.includes("Maximum limit")) {
+      throw new FailedCreateError("Maximum category limit reached");
+    }
     throw new FailedCreateError(
-      errorResponseBody?.message ?? "Failed to create category",
+      errorResponseBody?.error ?? "Failed to create category",
     );
   }
   return response.json();
@@ -45,7 +48,7 @@ export const updateCategory = async (
   if (!response.ok) {
     const errorResponseBody = await response.json().catch(() => null);
     throw new FailedUpdateError(
-      errorResponseBody?.message ?? "Failed to update category",
+      errorResponseBody?.error ?? "Failed to update category",
     );
   }
   return response.json();
@@ -58,7 +61,7 @@ export const deleteCategory = async (id: number): Promise<boolean> => {
   if (!response.ok) {
     const errorResponseBody = await response.json().catch(() => null);
     throw new FailedDeleteError(
-      errorResponseBody?.message ?? "Failed to delete category",
+      errorResponseBody?.error ?? "Failed to delete category",
     );
   }
   return true;

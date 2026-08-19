@@ -1,18 +1,19 @@
 import { useCreateCategory } from "../../hooks/useCategories";
 import FormButton from "../buttons/FormButton/FormButton";
-import classes from "./CategoryForm.module.scss";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import classes from "./AddCategory.module.scss";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
-interface CategoryFormData {
+interface AddCategoryData {
   name: string;
 }
 
-export default function CategoryForm() {
+export default function AddCategory() {
   const { mutate: createCategory, isError, error } = useCreateCategory();
 
-  const { register, handleSubmit, reset } = useForm<CategoryFormData>();
+  const { register, handleSubmit, reset } = useForm<AddCategoryData>();
 
-  const onSubmit: SubmitHandler<CategoryFormData, void> = (d): void => {
+  const onSubmit: SubmitHandler<AddCategoryData, void> = (d): void => {
     if (d.name) {
       createCategory(d.name, {
         onSuccess: () => {
@@ -22,8 +23,10 @@ export default function CategoryForm() {
     }
   };
 
+  const errorMsg = error?.message || null;
+
   return (
-    <div className="categoryForm">
+    <div className="addCategory">
       <section className="section">
         <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
           <i
@@ -39,13 +42,13 @@ export default function CategoryForm() {
           <FormButton isRounded>
             <i className="fa-solid fa-plus"></i>
           </FormButton>
+          {isError && (
+            <div className={classes.errorMsg}>
+              <ErrorMessage msg={errorMsg} />
+            </div>
+          )}
         </form>
       </section>
-      {isError && (
-        <div>
-          {error?.message || "Failed to create category. Please try again."}
-        </div>
-      )}
     </div>
   );
 }

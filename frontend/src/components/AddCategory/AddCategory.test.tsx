@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import CategoryForm from "./CategoryForm";
+import AddCategory from "./AddCategory";
 import { useCreateCategory } from "../../hooks/useCategories";
 import userEvent from "@testing-library/user-event";
 
@@ -19,7 +19,15 @@ vi.mock("../../hooks/useCategories", () => ({
   useCreateCategory: vi.fn(),
 }));
 
-describe("CategoryForm", () => {
+vi.mock("../ErrorMessage/ErrorMessage", () => {
+  return {
+    default: vi.fn(({ msg }) => {
+      return <div data-testid="errorMsg">{msg}</div>;
+    }),
+  };
+});
+
+describe("AddCategory", () => {
   const mockMutate = vi.fn(
     (_data: string, options: { onSuccess: () => void }) => {
       if (options?.onSuccess) {
@@ -41,7 +49,7 @@ describe("CategoryForm", () => {
 
   it("Should render with props passed to button", () => {
     // arrange
-    render(<CategoryForm />);
+    render(<AddCategory />);
     // act
     const icon = screen.getByTestId("categoryIcon");
     const input = screen.getByPlaceholderText("Add a category...");
@@ -55,7 +63,7 @@ describe("CategoryForm", () => {
 
   it("Should reset the input value onSuccess of createCategory", async () => {
     // arrange
-    render(<CategoryForm />);
+    render(<AddCategory />);
     const user = userEvent.setup();
     // act
     const input =
@@ -80,7 +88,7 @@ describe("CategoryForm", () => {
       isPending: false,
     } as any);
 
-    render(<CategoryForm />);
+    render(<AddCategory />);
     const user = userEvent.setup();
     // act
     const input =
@@ -91,33 +99,10 @@ describe("CategoryForm", () => {
     await user.click(btn);
     // assert
     await waitFor(() => {
-      expect(screen.getByText("Failed to create category")).toBeInTheDocument();
-    });
-  });
-
-  it("Should render the default error message when createCategory has an error with no message", async () => {
-    // arrange
-    vi.mocked(useCreateCategory).mockReturnValue({
-      mutate: vi.fn(),
-      isError: true,
-      error: new Error(),
-      isPending: false,
-    } as any);
-
-    render(<CategoryForm />);
-    const user = userEvent.setup();
-    // act
-    const input =
-      screen.getByPlaceholderText<HTMLInputElement>("Add a category...");
-    const btn = screen.getByTestId("add-btn");
-    await user.type(input, "New category");
-    expect(input.value).toBe("New category");
-    await user.click(btn);
-    // assert
-    await waitFor(() => {
-      expect(
-        screen.getByText("Failed to create category. Please try again."),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("errorMsg")).toBeInTheDocument();
+      expect(screen.getByTestId("errorMsg")).toHaveTextContent(
+        "Failed to create category",
+      );
     });
   });
 });

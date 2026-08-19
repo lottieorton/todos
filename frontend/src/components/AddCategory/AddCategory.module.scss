@@ -18,3 +18,8 @@
 .icon {
   @include m.category-icon("large");
 }
+
+.errorMsg {
+  padding-top: 0.5em;
+  grid-column: 1 / -1;
+}
