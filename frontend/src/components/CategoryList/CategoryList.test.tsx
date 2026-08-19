@@ -5,12 +5,14 @@ import userEvent from "@testing-library/user-event";
 import { useCategoryContext } from "../../context/CategoryContext";
 import type { Todo } from "../../interfaces/Todo";
 
-vi.mock("../buttons/FormButton/FormButton", () => {
+vi.mock("../buttons/LargeButton/LargeButton", () => {
   return {
     default: vi.fn(({ isSelected, children }) => {
       return (
         <button data-testid={`form-btn`} type="submit">
-          <div data-testid="children">{children + " " + isSelected}</div>
+          <div data-testid="children">
+            {children} {String(isSelected)}
+          </div>
         </button>
       );
     }),
@@ -61,9 +63,9 @@ describe("CategoryList", () => {
     const list = screen.getAllByRole("button");
     // assert
     expect(list).toHaveLength(3);
-    expect(list[0]).toHaveTextContent("All - 1 / 2 true");
-    expect(list[1]).toHaveTextContent("Cleaning - 0 / 1 false");
-    expect(list[2]).toHaveTextContent("Fitness - 1 / 1 false");
+    expect(list[0]).toHaveAccessibleName("All 1 / 2 true");
+    expect(list[1]).toHaveAccessibleName("Cleaning 0 / 1 false");
+    expect(list[2]).toHaveAccessibleName("Fitness 1 / 1 false");
   });
 
   it("Should update selected category button if category id value", () => {
@@ -79,9 +81,9 @@ describe("CategoryList", () => {
     const list = screen.getAllByRole("button");
     // assert
     expect(list).toHaveLength(3);
-    expect(list[0]).toHaveTextContent("All - 1 / 2 false");
-    expect(list[1]).toHaveTextContent("Cleaning - 0 / 1 true");
-    expect(list[2]).toHaveTextContent("Fitness - 1 / 1 false");
+    expect(list[0]).toHaveAccessibleName("All 1 / 2 false");
+    expect(list[1]).toHaveAccessibleName("Cleaning 0 / 1 true");
+    expect(list[2]).toHaveAccessibleName("Fitness 1 / 1 false");
   });
 
   it("Should render only All button if no categories fetched", () => {
@@ -101,7 +103,7 @@ describe("CategoryList", () => {
     const list = screen.getAllByRole("button");
     // assert
     expect(list).toHaveLength(1);
-    expect(list[0]).toHaveAccessibleName("All - 1 / 2 true");
+    expect(list[0]).toHaveAccessibleName("All 1 / 2 true");
   });
 
   it("Should call handleFilter with undefined when All button clicked", async () => {
@@ -115,7 +117,7 @@ describe("CategoryList", () => {
       />,
     );
     // act
-    const allBtn = screen.getByRole("button", { name: "All - 1 / 2 true" });
+    const allBtn = screen.getByRole("button", { name: "All 1 / 2 true" });
     await user.click(allBtn);
     // assert
     expect(mockHandleFilter).toHaveBeenCalledOnce();
@@ -134,7 +136,7 @@ describe("CategoryList", () => {
     );
     // act
     const categoryBtn = screen.getByRole("button", {
-      name: "Cleaning - 0 / 1 false",
+      name: "Cleaning 0 / 1 false",
     });
     await user.click(categoryBtn);
     // assert

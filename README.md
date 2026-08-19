@@ -169,6 +169,7 @@ This application is a full-stack task management system designed to help users o
 **19/08/2026 - Enhanced Error and Loading State Handling**
 
 - Consolidated state logic to display clearer, user-friendly error messages and loading indicators.
+- Refactored and enhanced category list button styling
 
 ---
 

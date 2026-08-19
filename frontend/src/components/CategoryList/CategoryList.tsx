@@ -1,6 +1,6 @@
 import { useCategoryContext } from "../../context/CategoryContext";
 import type { Todo } from "../../interfaces/Todo";
-import FormButton from "../buttons/FormButton/FormButton";
+import LargeButton from "../buttons/LargeButton/LargeButton";
 import classes from "./CategoryList.module.scss";
 
 interface CategoryListProps {
@@ -45,9 +45,10 @@ export default function CategoryList({
           handleSubmit(-1);
         }}
       >
-        <FormButton isSelected={categoryId === undefined}>
-          {`All - ${todos.filter((t) => t.isComplete).length} / ${todos.length}`}
-        </FormButton>
+        <LargeButton isSelected={categoryId === undefined}>
+          <div>All</div>
+          <div>{`${todos.filter((t) => t.isComplete).length} / ${todos.length}`}</div>
+        </LargeButton>
       </form>
       {categoriesWithCount.map((c) => {
         return (
@@ -59,9 +60,10 @@ export default function CategoryList({
               handleSubmit(c.id);
             }}
           >
-            <FormButton
-              isSelected={categoryId === c.id}
-            >{`${c.name} - ${c.countCompleted} / ${c.count}`}</FormButton>
+            <LargeButton isSelected={categoryId === c.id}>
+              <div>{`${c.name}`}</div>
+              <div>{`${c.countCompleted} / ${c.count}`}</div>
+            </LargeButton>
           </form>
         );
       })}

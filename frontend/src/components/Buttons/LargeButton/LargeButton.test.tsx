@@ -1,13 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import FormButton from "./FormButton";
+import LargeButton from "./LargeButton";
 
 describe("FormButton", () => {
   it("Should render itself with children", () => {
     // arrange
     render(
-      <FormButton>
-        <h1>Header</h1>
-      </FormButton>,
+      <LargeButton>
+        <h1>Child text</h1>
+      </LargeButton>,
     );
     // act
     const header = screen.getByRole("heading", { level: 1 });
@@ -15,6 +15,6 @@ describe("FormButton", () => {
     // assert
     expect(header).toBeInTheDocument();
     expect(btn).toBeInTheDocument();
-    expect(btn).toHaveAccessibleName("Submit");
+    expect(btn).toHaveAccessibleName("filter");
   });
 });
