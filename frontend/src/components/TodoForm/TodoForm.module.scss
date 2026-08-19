@@ -45,6 +45,10 @@
   gap: 0.5em;
 }
 
+.loadingIcon {
+  color: c.$main-text;
+}
+
 @include large-laptop {
   .category {
     font-size: 1.3em;

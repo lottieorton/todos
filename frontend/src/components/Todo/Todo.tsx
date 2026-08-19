@@ -86,7 +86,7 @@ export default function Todo({ todo }: TodoProps) {
 
       {hasErrors && (
         <div className={classes.errorMessage}>
-          <ErrorMessage msg={hasErrors} dataType="task" />
+          <ErrorMessage msg={hasErrors} />
         </div>
       )}
     </article>

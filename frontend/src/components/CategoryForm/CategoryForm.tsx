@@ -44,7 +44,7 @@ export default function CategoryForm() {
           </FormButton>
           {isError && (
             <div className={classes.errorMsg}>
-              <ErrorMessage msg={errorMsg} dataType="category" />
+              <ErrorMessage msg={errorMsg} />
             </div>
           )}
         </form>

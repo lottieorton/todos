@@ -12,12 +12,43 @@ vi.mock("../TodoForm/TodoForm", () => ({
         <div>{formText.categorySelection}</div>
         <div>{formText.btn}</div>
         <button
+          data-testid="add-values-btn"
           onClick={() => {
             formMethods.setValue("name", "Test todo");
-            onSubmit({ name: "Test todo", categoryId: 1 });
+            formMethods.setValue("categoryId", 1);
+            formMethods.handleSubmit(onSubmit)();
+            // onSubmit({ name: "Test todo", categoryId: 1 });
           }}
         >
           Add
+        </button>
+        <button
+          data-testid="submit-nocat-btn"
+          onClick={() => {
+            formMethods.setValue("name", "test");
+            formMethods.handleSubmit(onSubmit)();
+          }}
+        >
+          Submit no-cat
+        </button>
+        <button
+          data-testid="submit-noname-btn"
+          onClick={() => {
+            formMethods.setValue("categoryId", 1);
+            formMethods.handleSubmit(onSubmit)();
+          }}
+        >
+          Submit blank name
+        </button>
+        <button
+          data-testid="submit-emptyname-btn"
+          onClick={() => {
+            formMethods.setValue("name", "    ");
+            formMethods.setValue("categoryId", 1);
+            formMethods.handleSubmit(onSubmit)();
+          }}
+        >
+          Submit empty name
         </button>
         <input
           data-testid="input"
@@ -61,12 +92,10 @@ describe("AddTodo", () => {
     // act
     const nameInput = screen.getByText("Add a task...");
     const categoryDropdowntext = screen.getByText("Select a category");
-    const btnInfo = screen.getByText("add");
     const errorMsg = screen.getByTestId("errorMsg");
     // assert
     expect(nameInput).toBeInTheDocument();
     expect(categoryDropdowntext).toBeInTheDocument();
-    expect(btnInfo).toBeInTheDocument();
     expect(errorMsg).toHaveTextContent("");
   });
 
@@ -75,7 +104,7 @@ describe("AddTodo", () => {
     const user = userEvent.setup();
     render(<AddTodo />);
     // act
-    const btn = screen.getByRole("button");
+    const btn = screen.getByTestId("add-values-btn");
     await user.click(btn);
     // assert
     expect(mockMutate).toHaveBeenCalledOnce();
@@ -90,7 +119,7 @@ describe("AddTodo", () => {
     const user = userEvent.setup();
     render(<AddTodo />);
     // act
-    const btn = screen.getByRole("button");
+    const btn = screen.getByTestId("add-values-btn");
     const input = screen.getByTestId("input");
     await user.type(input, "Hello");
     expect(input).toHaveValue("Hello");
@@ -100,6 +129,96 @@ describe("AddTodo", () => {
     await waitFor(() => {
       expect(input).toHaveValue("");
     });
+  });
+
+  it("Should pass error message to form if form entered with no selected category", async () => {
+    const user = userEvent.setup();
+    const createTodoMock = vi.fn();
+
+    vi.mocked(useCreateTodo).mockReturnValue({
+      mutate: createTodoMock,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+
+    render(<AddTodo />);
+    // act
+    const btn = screen.getByTestId("submit-nocat-btn");
+    const errorMsg = screen.getByTestId("errorMsg");
+
+    await user.click(btn);
+    expect(createTodoMock).not.toHaveBeenCalled();
+    // assert
+    expect(errorMsg).toHaveTextContent("Must select a category");
+  });
+
+  it("Should pass error message to form if form entered with no name value", async () => {
+    const user = userEvent.setup();
+    const createTodoMock = vi.fn();
+
+    vi.mocked(useCreateTodo).mockReturnValue({
+      mutate: createTodoMock,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+
+    render(<AddTodo />);
+    // act
+    const btn = screen.getByTestId("submit-noname-btn");
+    const errorMsg = screen.getByTestId("errorMsg");
+
+    await user.click(btn);
+    expect(createTodoMock).not.toHaveBeenCalled();
+    // assert
+    expect(errorMsg).toHaveTextContent("Must enter a name");
+  });
+
+  it("Should pass error message to form if form entered with empty name value", async () => {
+    const user = userEvent.setup();
+    const createTodoMock = vi.fn();
+
+    vi.mocked(useCreateTodo).mockReturnValue({
+      mutate: createTodoMock,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+
+    render(<AddTodo />);
+    // act
+    const btn = screen.getByTestId("submit-emptyname-btn");
+    const errorMsg = screen.getByTestId("errorMsg");
+
+    await user.click(btn);
+    expect(createTodoMock).not.toHaveBeenCalled();
+    // assert
+    expect(errorMsg).toHaveTextContent("Must enter a name");
+  });
+
+  it("Should pass remove error message on successful submission of the form", async () => {
+    const user = userEvent.setup();
+    const createTodoMock = vi.fn();
+
+    vi.mocked(useCreateTodo).mockReturnValue({
+      mutate: createTodoMock,
+      isError: false,
+      error: null,
+      isPending: false,
+    } as any);
+
+    render(<AddTodo />);
+    // act
+    const btn = screen.getByTestId("submit-nocat-btn");
+    const successSubmitBtn = screen.getByTestId("add-values-btn");
+
+    const errorMsg = screen.getByTestId("errorMsg");
+    await user.click(btn);
+    expect(errorMsg).toHaveTextContent("Must select a category");
+    await user.click(successSubmitBtn);
+    // assert
+    expect(errorMsg).toHaveTextContent("");
   });
 
   it("Should pass error message to form if error with creating todo", async () => {
@@ -115,7 +234,7 @@ describe("AddTodo", () => {
 
     const { rerender } = render(<AddTodo />);
     // act
-    const btn = screen.getByRole("button");
+    const btn = screen.getByTestId("add-values-btn");
     const errorMsg = screen.getByTestId("errorMsg");
 
     await user.click(btn);

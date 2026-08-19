@@ -166,6 +166,10 @@ This application is a full-stack task management system designed to help users o
 - Refactored consumption of todos and categories endpoints into a consolidated hook approach.
 - Implemented `isArchived` soft deletes and `isComplete` persistence across backend and frontend.
 
+**19/08/2026 - Enhanced Error and Loading State Handling**
+
+- Consolidated state logic to display clearer, user-friendly error messages and loading indicators.
+
 ---
 
 ## What did you struggle with?

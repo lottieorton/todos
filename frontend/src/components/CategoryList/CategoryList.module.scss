@@ -1,8 +1,14 @@
+@use "../../sass/mixins/mediaQueries" as *;
+
 .categoryList {
   display: flex;
   gap: 0.5em;
   flex-wrap: wrap;
   white-space: nowrap;
+
+  @include laptop {
+    flex-direction: column;
+  }
 }
 
 .category {

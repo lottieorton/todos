@@ -2,20 +2,18 @@ import classes from "./ErrorMessage.module.scss";
 
 interface ErrorMessageProps {
   msg: string | null;
-  dataType: "task" | "category";
 }
 
-export default function ErrorMessage({ msg, dataType }: ErrorMessageProps) {
+export default function ErrorMessage({ msg }: ErrorMessageProps) {
   let printMsg: string;
   switch (msg) {
+    case "Must select a category":
+    case "Must enter a name":
+      printMsg = msg;
+      break;
     case "Bad Request":
-      printMsg = `Invalid value${dataType === "task" ? "s" : ""}. Ensure name is not empty ${dataType === "task" ? "and a category is selected" : ""}.`;
-      break;
-    case "Not Found":
-      printMsg = `Could not find a matching ${dataType}`;
-      break;
-    case "Unprocessable Content":
-      printMsg = `Could not find a matching category`;
+      printMsg =
+        "Invalid values. Ensure name is not empty and a category is selected.";
       break;
     default:
       printMsg = "Oops, something went wrong. Please try reloading the page.";

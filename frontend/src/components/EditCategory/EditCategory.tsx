@@ -4,6 +4,7 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from "../../hooks/useCategories";
+import { useState } from "react";
 
 interface FormData {
   name: string;
@@ -25,12 +26,19 @@ export default function EditCategory() {
 
   const formMethods = useForm<FormData>();
 
+  const [formError, setFormError] = useState<string | null>(null);
+
   const onUpdateSubmit: SubmitHandler<FormData, void> = (d): void => {
-    if (d.name && d.categoryId) {
+    if (!d.name || d.name.trim() === "") {
+      setFormError("Must enter a name");
+    } else if (!d.categoryId) {
+      setFormError("Must select a category");
+    } else if (d.name && d.categoryId) {
       const data = {
         id: d.categoryId,
         name: d.name,
       };
+      setFormError(null);
 
       updateCategory(data, {
         onSuccess: () => {
@@ -53,6 +61,7 @@ export default function EditCategory() {
   const errorMsg =
     (isCategoriesUpdateError && categoriesUpdateError.message) ||
     (isCategoriesDeleteError && categoriesDeleteError.message) ||
+    formError ||
     null;
 
   return (

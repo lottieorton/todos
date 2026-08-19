@@ -5,6 +5,7 @@ import FormButton from "../buttons/FormButton/FormButton";
 import IconButton from "../buttons/IconButton/IconButton";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import { useCategoryContext } from "../../context/CategoryContext";
+import { useState } from "react";
 
 interface TodoFormProps {
   formMethods: UseFormReturn<TodoFormData>;
@@ -27,17 +28,20 @@ export default function TodoForm({
   errorMsg,
 }: TodoFormProps) {
   const { categories, isCategoriesLoading } = useCategoryContext();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit } = formMethods;
 
   const handleDeleteClick = () => {
     const selectedCategory = formMethods.getValues("categoryId");
+    if (!selectedCategory) setErrorMessage("Must select a category");
     if (selectedCategory && handleDelete) {
+      setErrorMessage(null);
       handleDelete(selectedCategory);
     }
   };
 
-  if (isCategoriesLoading) return <div>Loading...</div>;
+  const isActiveError = errorMessage || errorMsg;
 
   return (
     <form
@@ -66,6 +70,14 @@ export default function TodoForm({
             );
           })}
         </select>
+        {isCategoriesLoading && (
+          <div>
+            <i
+              className={`fa-solid fa-spinner ${classes.loadingIcon}`}
+              aria-label="loading icon"
+            ></i>
+          </div>
+        )}
       </div>
       <div className={classes.todo}>
         <input
@@ -88,7 +100,7 @@ export default function TodoForm({
           )}
         </div>
       </div>
-      {errorMsg && <ErrorMessage msg={errorMsg} dataType="task" />}
+      {isActiveError && <ErrorMessage msg={isActiveError} />}
     </form>
   );
 }

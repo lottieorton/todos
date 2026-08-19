@@ -90,13 +90,14 @@ h6 {
   }
 
   .categoryList {
-    grid-column: 2;
-    grid-row: 4;
+    grid-column: 1;
+    grid-row: 3 / -1;
+    padding: 0em 2em;
   }
 
   .todoList {
     grid-column: 2;
-    grid-row: 5;
+    grid-row: 4;
   }
 
   .errorMsg {

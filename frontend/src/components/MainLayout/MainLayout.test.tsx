@@ -30,11 +30,10 @@ vi.mock("../EditCategory/EditCategory", () => ({
 }));
 
 vi.mock("../TodoList/TodoList", () => ({
-  default: vi.fn(({ todos, isLoading }) => {
+  default: vi.fn(({ todos }) => {
     return (
       <div data-testid="todo-list">
-        <div data-testid="todos">{todos[0].name}</div>
-        <div data-testid="isTodosLoading">{`Is loading is ` + isLoading}</div>
+        <div data-testid="todos">{todos[0]?.name}</div>
         <div data-testid="fileredTodosLength">{todos.length}</div>
       </div>
     );
@@ -48,10 +47,16 @@ vi.mock("../CategoryList/CategoryList", () => ({
         <button data-testid="category-list" onClick={() => handleFilter(1)}>
           {`Filter: ${categoryId}`}
         </button>
-        <div data-testid="todosCatList">{todos[0].name}</div>
+        <div data-testid="todosCatList">{todos[0]?.name}</div>
         <div data-testid="todosCatListLength">{todos.length}</div>
       </>
     );
+  }),
+}));
+
+vi.mock("../GlobalMessage/GlobalMessage", () => ({
+  default: vi.fn(({ type, msg }) => {
+    return <div data-testid="global-msg">{`${type} - ${msg}`}</div>;
   }),
 }));
 
@@ -111,7 +116,6 @@ describe("MainLayout", () => {
     expect(todoList).toBeInTheDocument();
     expect(screen.getByTestId("fileredTodosLength")).toHaveTextContent("2");
     expect(todoList.children[0]).toHaveTextContent("Hoover");
-    expect(todoList.children[1]).toHaveTextContent("Is loading is false");
     expect(sidebarBackground).toBeInTheDocument();
   });
 
@@ -142,11 +146,34 @@ describe("MainLayout", () => {
     // act
     const sidebarHeader = screen.getByRole("heading", { level: 2 });
     const header = screen.getByRole("heading", { level: 1 });
-    const errorMessage = screen.getByTestId("errorMessage");
+    const errorMessage = screen.getByTestId("global-msg");
     // assert
     expect(sidebarHeader).toHaveTextContent("Task By Task");
     expect(header).toHaveTextContent("My Tasks List");
     expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent(
+      "error - Something went wrong. Please try again!",
+    );
     expect(screen.queryByTestId("add-todo")).not.toBeInTheDocument();
+  });
+
+  it("Should render loading message when todos data is loading", async () => {
+    // arrange
+    vi.mocked(useTodos).mockReturnValue({
+      data: [],
+      isLoading: true,
+      isError: false,
+    } as any);
+    render(<MainLayout />);
+    // act
+    const sidebarHeader = screen.getByRole("heading", { level: 2 });
+    const header = screen.getByRole("heading", { level: 1 });
+    const loadingMessage = screen.getByTestId("global-msg");
+    // assert
+    expect(sidebarHeader).toHaveTextContent("Task By Task");
+    expect(header).toHaveTextContent("My Tasks List");
+    expect(loadingMessage).toBeInTheDocument();
+    expect(loadingMessage).toHaveTextContent("loading - Loading...");
+    expect(screen.queryByTestId("todo-list")).not.toBeInTheDocument();
   });
 });

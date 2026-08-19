@@ -4,12 +4,9 @@ import type { Todo } from "../../interfaces/Todo";
 
 interface TodoListProps {
   todos: Todo[];
-  isLoading: boolean;
 }
 
-export default function TodoList({ todos, isLoading }: TodoListProps) {
-  if (isLoading) return <div data-testid="todoList">Loading...</div>;
-
+export default function TodoList({ todos }: TodoListProps) {
   return (
     <section className="todoList" data-testid="todoList">
       <div className={classes.container + " section"}>

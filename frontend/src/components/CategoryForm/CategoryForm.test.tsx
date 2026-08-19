@@ -21,8 +21,8 @@ vi.mock("../../hooks/useCategories", () => ({
 
 vi.mock("../ErrorMessage/ErrorMessage", () => {
   return {
-    default: vi.fn(({ msg, dataType }) => {
-      return <div data-testid="errorMsg">{msg + " " + dataType}</div>;
+    default: vi.fn(({ msg }) => {
+      return <div data-testid="errorMsg">{msg}</div>;
     }),
   };
 });
@@ -101,7 +101,7 @@ describe("CategoryForm", () => {
     await waitFor(() => {
       expect(screen.getByTestId("errorMsg")).toBeInTheDocument();
       expect(screen.getByTestId("errorMsg")).toHaveTextContent(
-        "Failed to create category category",
+        "Failed to create category",
       );
     });
   });

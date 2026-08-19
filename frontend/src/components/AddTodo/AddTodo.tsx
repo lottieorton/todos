@@ -2,6 +2,7 @@ import { useCreateTodo } from "../../hooks/useTodos";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import type { TodoFormData } from "../../interfaces/TodoFormData";
 import TodoForm from "../TodoForm/TodoForm";
+import { useState } from "react";
 
 export default function AddTodo() {
   const {
@@ -10,14 +11,21 @@ export default function AddTodo() {
     error: todosError,
   } = useCreateTodo();
 
+  const [formError, setFormError] = useState<string | null>(null);
+
   const formMethods = useForm<TodoFormData>();
 
   const onSubmit: SubmitHandler<TodoFormData, void> = (d): void => {
-    if (d.name && d.categoryId) {
+    if (!d.name || d.name.trim() === "") {
+      setFormError("Must enter a name");
+    } else if (!d.categoryId) {
+      setFormError("Must select a category");
+    } else if (d.name && d.categoryId) {
       const data = {
         name: d.name,
         categoryId: d.categoryId,
       };
+      setFormError(null);
       createTodo(data, {
         onSuccess: () => {
           formMethods.reset();
@@ -33,7 +41,7 @@ export default function AddTodo() {
     isBtnRounded: true,
   } as const;
 
-  const errorMsg = (isTodosError && todosError.message) || null;
+  const errorMsg = (isTodosError && todosError.message) || formError || null;
 
   return (
     <div data-testid="add-todo">

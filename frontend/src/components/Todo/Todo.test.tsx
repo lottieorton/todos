@@ -47,8 +47,8 @@ vi.mock("../EditTodo/EditTodo", () => {
 
 vi.mock("../ErrorMessage/ErrorMessage", () => {
   return {
-    default: vi.fn(({ msg, dataType }) => {
-      return <div data-testid="errorMsg">{msg + " " + dataType}</div>;
+    default: vi.fn(({ msg }) => {
+      return <div data-testid="errorMsg">{msg}</div>;
     }),
   };
 });
@@ -155,7 +155,7 @@ describe("Todo", () => {
     // assert
     expect(mockUpdateMutate).toHaveBeenCalledOnce();
     expect(mockUpdateMutate).toHaveBeenCalledWith({ id: 1, isComplete: true });
-    expect(screen.getByText("Failed to delete todo task")).toBeInTheDocument();
+    expect(screen.getByText("Failed to delete todo")).toBeInTheDocument();
   });
 
   it("Should load the edit todo form when edit button clicked", async () => {
@@ -260,6 +260,6 @@ describe("Todo", () => {
     // assert
     expect(mockDeleteMutate).toHaveBeenCalledOnce();
     expect(mockDeleteMutate).toHaveBeenCalledWith(1);
-    expect(screen.getByText("Failed to delete todo task")).toBeInTheDocument();
+    expect(screen.getByText("Failed to delete todo")).toBeInTheDocument();
   });
 });

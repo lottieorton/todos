@@ -141,26 +141,4 @@ describe("CategoryList", () => {
     expect(mockHandleFilter).toHaveBeenCalledOnce();
     expect(mockHandleFilter).toHaveBeenCalledWith(1);
   });
-
-  it("Should render loading message when fetching results are loading", () => {
-    // arrange
-    vi.mocked(useCategoryContext).mockReturnValue({
-      categories: [],
-      isCategoriesLoading: true,
-    } as any);
-    render(
-      <CategoryList
-        categoryId={undefined}
-        handleFilter={mockHandleFilter}
-        todos={mockTodos}
-      />,
-    );
-    // act
-    const loadingMsg = screen.getByText("Loading now...");
-    // assert
-    expect(loadingMsg).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "All true" }),
-    ).not.toBeInTheDocument();
-  });
 });

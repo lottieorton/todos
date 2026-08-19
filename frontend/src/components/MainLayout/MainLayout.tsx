@@ -8,7 +8,7 @@ import CategoryList from "../CategoryList/CategoryList";
 import TodoList from "../TodoList/TodoList";
 import { useTodos } from "../../hooks/useTodos";
 import { useCategoryContext } from "../../context/CategoryContext";
-import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import GlobalMessage from "../GlobalMessage/GlobalMessage";
 
 export default function MainLayout() {
   const [filterCategoryId, setFilterCategoryId] = useState<number | undefined>(
@@ -37,9 +37,12 @@ export default function MainLayout() {
       <SidebarHeader />
       <Header />
       {isGlobalError ? (
-        <div className="errorMsg">
-          <ErrorMessage msg="Network Connection" dataType="task" />
-        </div>
+        <GlobalMessage
+          type="error"
+          msg="Something went wrong. Please try again!"
+        >
+          <i className="fa-solid fa-triangle-exclamation"></i>
+        </GlobalMessage>
       ) : (
         <>
           <CategoryForm />
@@ -50,13 +53,16 @@ export default function MainLayout() {
             handleFilter={setFilterCategoryId}
             todos={allTodos}
           />
-          <TodoList
-            todos={filteredTodos}
-            isLoading={isFilteredTodosLoading || isAllTodosLoading}
-          />
-          <div className="sidebarBackground" data-testid="sidebarBackground" />
+          {isFilteredTodosLoading || isAllTodosLoading ? (
+            <GlobalMessage type="loading" msg="Loading...">
+              <i className="fa-solid fa-spinner"></i>
+            </GlobalMessage>
+          ) : (
+            <TodoList todos={filteredTodos} />
+          )}
         </>
       )}
+      <div className="sidebarBackground" data-testid="sidebarBackground" />
     </main>
   );
 }

@@ -14,7 +14,7 @@ export default function CategoryList({
   handleFilter,
   todos,
 }: CategoryListProps) {
-  const { categories, isCategoriesLoading } = useCategoryContext();
+  const { categories } = useCategoryContext();
 
   const categoriesWithCount = categories.map((c) => ({
     ...c,
@@ -31,8 +31,6 @@ export default function CategoryList({
     }
     handleFilter(id);
   };
-
-  if (isCategoriesLoading) return <div>Loading now...</div>;
 
   return (
     <section
