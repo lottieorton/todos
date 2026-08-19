@@ -86,6 +86,26 @@ describe("categories service", () => {
       await expect(createCategory("Fails")).rejects.toThrow("Bad Request");
     });
 
+    it("Should throw a FailedCreateError for non 201 response status with database limit message", async () => {
+      // arrange
+      const mockTodoErrorResponseBody = {
+        timestamp: "2026-08-15T07:09:14.240081Z",
+        status: 400,
+        error: "Bad Request",
+        message: "Maximum limit of 15 categories reached",
+        path: "/categories",
+      };
+      vi.spyOn(window, "fetch").mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => mockTodoErrorResponseBody,
+      } as Response);
+      // assert
+      await expect(createCategory("Fails")).rejects.toThrow(
+        "Maximum category limit reached",
+      );
+    });
+
     it("Should throw a FailedCreateError with default message for non 201 response status without message", async () => {
       // arrange
       vi.spyOn(window, "fetch").mockResolvedValueOnce({

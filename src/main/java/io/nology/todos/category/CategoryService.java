@@ -13,6 +13,7 @@ import io.nology.todos.category.entities.Category;
 public class CategoryService {
     
     private final CategoryRepository repo;
+    private static final long MAX_CATEGORIES = 15;
 
     public CategoryService(CategoryRepository repo) {
         this.repo = repo;
@@ -27,6 +28,10 @@ public class CategoryService {
     }
 
     public Category create(CreateCategoryRequest data) {
+        long currentCount = repo.count();
+        if(currentCount >= MAX_CATEGORIES) {
+            throw new IllegalStateException("Maximum limit of " + MAX_CATEGORIES + " categories reached");
+        }
         Category createdCategory = new Category();
         createdCategory.setName(data.getName().trim());
         this.repo.saveAndFlush(createdCategory);

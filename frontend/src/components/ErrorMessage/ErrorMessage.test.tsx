@@ -20,6 +20,15 @@ describe("ErrorMessage", () => {
     expect(msg).toBeInTheDocument();
   });
 
+  it("Should render exact message when category limit is reached", () => {
+    // arrange
+    render(<ErrorMessage msg="Maximum category limit reached" />);
+    // act
+    const msg = screen.getByText("Maximum category limit reached");
+    // assert
+    expect(msg).toBeInTheDocument();
+  });
+
   it("Should render invalid values message for Bad Requests", () => {
     // arrange
     render(<ErrorMessage msg="Bad Request" />);

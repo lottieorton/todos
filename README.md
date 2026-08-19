@@ -170,6 +170,7 @@ This application is a full-stack task management system designed to help users o
 
 - Consolidated state logic to display clearer, user-friendly error messages and loading indicators.
 - Refactored and enhanced category list button styling
+- Implements category limit in backend service layer
 
 ---
 

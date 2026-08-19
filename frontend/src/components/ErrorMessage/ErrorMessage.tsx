@@ -9,6 +9,7 @@ export default function ErrorMessage({ msg }: ErrorMessageProps) {
   switch (msg) {
     case "Must select a category":
     case "Must enter a name":
+    case "Maximum category limit reached":
       printMsg = msg;
       break;
     case "Bad Request":

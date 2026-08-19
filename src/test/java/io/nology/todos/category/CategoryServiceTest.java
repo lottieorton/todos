@@ -3,6 +3,7 @@ package io.nology.todos.category;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -46,7 +47,7 @@ public class CategoryServiceTest {
     }
 
     @Test
-    public void create_TrimsNameAndSavesCategoryInDB() {
+    public void create_WhenCategoryLimitNotReached_TrimsNameAndSavesCategoryInDB() {
         // arrange
         CreateCategoryRequest data = new CreateCategoryRequest();
         data.setName("  New category   ");
@@ -65,6 +66,18 @@ public class CategoryServiceTest {
         assertEquals("New category", result.getName());
 
         verify(this.repo).saveAndFlush(argThat(category -> category.getName().equals("New category")));
+    }
+
+    @Test
+    public void create_WhenCategoryLimitReached_ThrowsExcpetion() {
+        // arrange
+        CreateCategoryRequest data = new CreateCategoryRequest();
+        data.setName("New category");
+        when(this.repo.count()).thenReturn(15L);
+
+        // assert
+        assertThrows(IllegalStateException.class, () -> this.categoryService.create(data));
+        verify(this.repo, never()).saveAndFlush(any(Category.class));
     }
 
     @Test
