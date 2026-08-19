@@ -6,7 +6,7 @@ import {
 import EditCategory from "./EditCategory";
 import userEvent from "@testing-library/user-event";
 
-vi.mock("../TodoForm/TodoForm", () => ({
+vi.mock("../MultiFieldForm/MultiFieldForm", () => ({
   default: vi.fn(
     ({ formMethods, onSubmit, handleDelete, formText, errorMsg }) => {
       const { ref, ...nameRegister } = formMethods.register("name");

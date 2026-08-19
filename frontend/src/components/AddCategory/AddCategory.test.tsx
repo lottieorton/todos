@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import CategoryForm from "./CategoryForm";
+import AddCategory from "./AddCategory";
 import { useCreateCategory } from "../../hooks/useCategories";
 import userEvent from "@testing-library/user-event";
 
@@ -27,7 +27,7 @@ vi.mock("../ErrorMessage/ErrorMessage", () => {
   };
 });
 
-describe("CategoryForm", () => {
+describe("AddCategory", () => {
   const mockMutate = vi.fn(
     (_data: string, options: { onSuccess: () => void }) => {
       if (options?.onSuccess) {
@@ -49,7 +49,7 @@ describe("CategoryForm", () => {
 
   it("Should render with props passed to button", () => {
     // arrange
-    render(<CategoryForm />);
+    render(<AddCategory />);
     // act
     const icon = screen.getByTestId("categoryIcon");
     const input = screen.getByPlaceholderText("Add a category...");
@@ -63,7 +63,7 @@ describe("CategoryForm", () => {
 
   it("Should reset the input value onSuccess of createCategory", async () => {
     // arrange
-    render(<CategoryForm />);
+    render(<AddCategory />);
     const user = userEvent.setup();
     // act
     const input =
@@ -88,7 +88,7 @@ describe("CategoryForm", () => {
       isPending: false,
     } as any);
 
-    render(<CategoryForm />);
+    render(<AddCategory />);
     const user = userEvent.setup();
     // act
     const input =

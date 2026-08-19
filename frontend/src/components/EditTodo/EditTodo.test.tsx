@@ -3,7 +3,7 @@ import { useUpdateTodo } from "../../hooks/useTodos";
 import userEvent from "@testing-library/user-event";
 import EditTodo from "./EditTodo";
 
-vi.mock("../TodoForm/TodoForm", () => ({
+vi.mock("../MultiFieldForm/MultiFieldForm", () => ({
   default: vi.fn(({ formMethods, onSubmit, formText, errorMsg }) => {
     const { ref, ...nameRegister } = formMethods.register("name");
     return (
@@ -57,7 +57,7 @@ describe("EditTodo", () => {
     } as any);
   });
 
-  it("Should render TodoForm passing down formText props", () => {
+  it("Should render MultiFieldForm passing down formText props", () => {
     // arrange
     render(<EditTodo id={1} toggleIsEditing={mockToggleIsEditing} />);
     // act

@@ -1,6 +1,6 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import type { TodoFormData } from "../../interfaces/TodoFormData";
-import TodoForm from "../TodoForm/TodoForm";
+import type { MultiFieldFormData } from "../../interfaces/MultiFieldFormData";
+import MultiFieldForm from "../MultiFieldForm/MultiFieldForm";
 import { useUpdateTodo } from "../../hooks/useTodos";
 
 interface EditTodoProps {
@@ -21,9 +21,9 @@ export default function EditTodo({ id, toggleIsEditing }: EditTodoProps) {
     error: todosError,
   } = useUpdateTodo();
 
-  const formMethods = useForm<TodoFormData>();
+  const formMethods = useForm<MultiFieldFormData>();
 
-  const onSubmit: SubmitHandler<TodoFormData, void> = (d): void => {
+  const onSubmit: SubmitHandler<MultiFieldFormData, void> = (d): void => {
     const data: FormData = { id };
     if (d.name) data.name = d.name;
     if (d.categoryId) data.categoryId = d.categoryId;
@@ -45,7 +45,7 @@ export default function EditTodo({ id, toggleIsEditing }: EditTodoProps) {
   const errorMsg = (isTodosError && todosError.message) || null;
 
   return (
-    <TodoForm
+    <MultiFieldForm
       formMethods={formMethods}
       onSubmit={onSubmit}
       formText={formText}

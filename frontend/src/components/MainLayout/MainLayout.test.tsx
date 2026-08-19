@@ -12,9 +12,9 @@ vi.mock("../../context/CategoryContext", () => ({
   useCategoryContext: vi.fn(),
 }));
 
-vi.mock("../CategoryForm/CategoryForm", () => ({
+vi.mock("../AddCategory/AddCategory", () => ({
   default: vi.fn(() => {
-    return <div data-testid="category-form"></div>;
+    return <div data-testid="add-category"></div>;
   }),
 }));
 
@@ -97,7 +97,7 @@ describe("MainLayout", () => {
     // act
     const sidebarHeader = screen.getByRole("heading", { level: 2 });
     const header = screen.getByRole("heading", { level: 1 });
-    const categoryForm = screen.getByTestId("category-form");
+    const addCategory = screen.getByTestId("add-category");
     const addTodo = await screen.findByTestId("add-todo");
     const editCategory = await screen.findByTestId("edit-category");
     const categoryList = screen.getByTestId("category-list");
@@ -106,7 +106,7 @@ describe("MainLayout", () => {
     // assert
     expect(sidebarHeader).toHaveTextContent("Task By Task");
     expect(header).toHaveTextContent("My Tasks List");
-    expect(categoryForm).toBeInTheDocument();
+    expect(addCategory).toBeInTheDocument();
     expect(addTodo).toBeInTheDocument();
     expect(editCategory).toBeInTheDocument();
     expect(categoryList).toBeInTheDocument();

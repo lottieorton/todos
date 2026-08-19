@@ -1,7 +1,7 @@
 import { useCreateTodo } from "../../hooks/useTodos";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import type { TodoFormData } from "../../interfaces/TodoFormData";
-import TodoForm from "../TodoForm/TodoForm";
+import type { MultiFieldFormData } from "../../interfaces/MultiFieldFormData";
+import MultiFieldForm from "../MultiFieldForm/MultiFieldForm";
 import { useState } from "react";
 
 export default function AddTodo() {
@@ -13,9 +13,9 @@ export default function AddTodo() {
 
   const [formError, setFormError] = useState<string | null>(null);
 
-  const formMethods = useForm<TodoFormData>();
+  const formMethods = useForm<MultiFieldFormData>();
 
-  const onSubmit: SubmitHandler<TodoFormData, void> = (d): void => {
+  const onSubmit: SubmitHandler<MultiFieldFormData, void> = (d): void => {
     if (!d.name || d.name.trim() === "") {
       setFormError("Must enter a name");
     } else if (!d.categoryId) {
@@ -45,7 +45,7 @@ export default function AddTodo() {
 
   return (
     <div data-testid="add-todo">
-      <TodoForm
+      <MultiFieldForm
         formMethods={formMethods}
         onSubmit={onSubmit}
         formText={formText}

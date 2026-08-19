@@ -1,5 +1,5 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import TodoForm from "../TodoForm/TodoForm";
+import MultiFieldForm from "../MultiFieldForm/MultiFieldForm";
 import {
   useDeleteCategory,
   useUpdateCategory,
@@ -66,7 +66,7 @@ export default function EditCategory() {
 
   return (
     <div data-testid="edit-category" className="editCategoryForm">
-      <TodoForm
+      <MultiFieldForm
         formMethods={formMethods}
         onSubmit={onUpdateSubmit}
         handleDelete={handleDelete}

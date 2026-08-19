@@ -1,15 +1,15 @@
-import classes from "./TodoForm.module.scss";
+import classes from "./MultiFieldForm.module.scss";
 import { type SubmitHandler, type UseFormReturn } from "react-hook-form";
-import type { TodoFormData } from "../../interfaces/TodoFormData";
+import type { MultiFieldFormData } from "../../interfaces/MultiFieldFormData";
 import FormButton from "../buttons/FormButton/FormButton";
 import IconButton from "../buttons/IconButton/IconButton";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import { useCategoryContext } from "../../context/CategoryContext";
 import { useState } from "react";
 
-interface TodoFormProps {
-  formMethods: UseFormReturn<TodoFormData>;
-  onSubmit: SubmitHandler<TodoFormData>;
+interface MultiFieldFormProps {
+  formMethods: UseFormReturn<MultiFieldFormData>;
+  onSubmit: SubmitHandler<MultiFieldFormData>;
   handleDelete?: (id: number) => void;
   formText: {
     categorySelection: string;
@@ -20,13 +20,13 @@ interface TodoFormProps {
   errorMsg?: string | null;
 }
 
-export default function TodoForm({
+export default function MultiFieldForm({
   formMethods,
   handleDelete,
   onSubmit,
   formText: { categorySelection, inputPlaceholder, btn, isBtnRounded = false },
   errorMsg,
-}: TodoFormProps) {
+}: MultiFieldFormProps) {
   const { categories, isCategoriesLoading } = useCategoryContext();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -45,7 +45,7 @@ export default function TodoForm({
 
   return (
     <form
-      className={classes.form + " section todoForm"}
+      className={classes.form + " section multiFieldForm"}
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className={classes.categorySection}>

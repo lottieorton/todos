@@ -1,9 +1,9 @@
 import { render, renderHook, screen } from "@testing-library/react";
-import TodoForm from "./TodoForm";
+import MultiFieldForm from "./MultiFieldForm";
 import type { Category } from "../../interfaces/Category";
 import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
-import type { TodoFormData } from "../../interfaces/TodoFormData";
+import type { MultiFieldFormData } from "../../interfaces/MultiFieldFormData";
 import { useCategoryContext } from "../../context/CategoryContext";
 
 vi.mock("../buttons/FormButton/FormButton", () => {
@@ -44,7 +44,7 @@ vi.mock("../../context/CategoryContext", () => ({
   useCategoryContext: vi.fn(),
 }));
 
-describe("TodoForm", () => {
+describe("MultiFieldForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -67,9 +67,9 @@ describe("TodoForm", () => {
 
   it("Should render form with list of categories in the dropdown, with an add, non-round btn", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -98,7 +98,7 @@ describe("TodoForm", () => {
 
   it("Should render form button as round when isRounded is true", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockFormText = {
       categorySelection: "Select a category",
       inputPlaceholder: "Add a name...",
@@ -106,7 +106,7 @@ describe("TodoForm", () => {
       isBtnRounded: true,
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -121,14 +121,14 @@ describe("TodoForm", () => {
 
   it("Should render edit form button when btn = edit", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockFormText = {
       categorySelection: "Select a category",
       inputPlaceholder: "Add a name...",
       btn: "edit",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -145,7 +145,7 @@ describe("TodoForm", () => {
 
   it("Should render edit icon, edit form and delete buttons when btn = editDelete", () => {
     // arrange
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
 
     const mockFormText = {
@@ -154,7 +154,7 @@ describe("TodoForm", () => {
       btn: "editDelete",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -177,9 +177,9 @@ describe("TodoForm", () => {
       categories: [],
       isCategoriesLoading: true,
     } as any);
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -198,9 +198,9 @@ describe("TodoForm", () => {
       isCategoriesLoading: false,
     } as any);
 
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -217,9 +217,9 @@ describe("TodoForm", () => {
   it("Should call onSubmit prop when submit form", async () => {
     // arrange
     const user = userEvent.setup();
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -240,7 +240,7 @@ describe("TodoForm", () => {
   it("Should call parents handleDelete when delete button clicked with selected category", async () => {
     // arrange
     const user = userEvent.setup();
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
 
     const mockFormText = {
@@ -249,7 +249,7 @@ describe("TodoForm", () => {
       btn: "editDelete",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -268,7 +268,7 @@ describe("TodoForm", () => {
   it("Should render error message when delete button clicked without category selected", async () => {
     // arrange
     const user = userEvent.setup();
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
 
     const mockFormText = {
@@ -277,7 +277,7 @@ describe("TodoForm", () => {
       btn: "editDelete",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}
@@ -298,7 +298,7 @@ describe("TodoForm", () => {
   it("Should remove error message when delete button clicked with category selected", async () => {
     // arrange
     const user = userEvent.setup();
-    const { result } = renderHook(() => useForm<TodoFormData>());
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
 
     const mockFormText = {
@@ -307,7 +307,7 @@ describe("TodoForm", () => {
       btn: "editDelete",
     } as const;
     render(
-      <TodoForm
+      <MultiFieldForm
         formMethods={result.current}
         onSubmit={mockOnSubmit}
         formText={mockFormText}

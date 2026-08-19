@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SidebarHeader from "../SidebarHeader/SidebarHeader";
 import Header from "../Header/Header";
-import CategoryForm from "../CategoryForm/CategoryForm";
+import AddCategory from "../AddCategory/AddCategory";
 import AddTodo from "../AddTodo/AddTodo";
 import EditCategory from "../EditCategory/EditCategory";
 import CategoryList from "../CategoryList/CategoryList";
@@ -45,7 +45,7 @@ export default function MainLayout() {
         </GlobalMessage>
       ) : (
         <>
-          <CategoryForm />
+          <AddCategory />
           <AddTodo />
           <EditCategory />
           <CategoryList
