@@ -45,6 +45,7 @@ describe("EditTodo", () => {
   );
 
   const mockToggleIsEditing = vi.fn();
+  const updateTodoMock = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -122,38 +123,16 @@ describe("EditTodo", () => {
   });
 
   it("Should render error message if error with updating todo", async () => {
-    const user = userEvent.setup();
-    const updateTodoMock = vi.fn();
-
-    vi.mocked(useUpdateTodo).mockReturnValue({
-      mutate: updateTodoMock,
-      isError: false,
-      error: null,
-      isPending: false,
-    } as any);
-
-    const { rerender } = render(
-      <EditTodo id={1} toggleIsEditing={mockToggleIsEditing} />,
-    );
-
-    // act
-    const btn = screen.getByRole("button");
-    const errorMsg = screen.getByTestId("errorMsg");
-    expect(errorMsg).toHaveTextContent("");
-    await user.click(btn);
-    expect(updateTodoMock).toHaveBeenCalledOnce();
-
     vi.mocked(useUpdateTodo).mockReturnValue({
       mutate: updateTodoMock,
       isError: true,
       error: new Error("Failed to update todo"),
       isPending: false,
     } as any);
-
-    rerender(<EditTodo id={1} toggleIsEditing={mockToggleIsEditing} />);
-
+    render(<EditTodo id={1} toggleIsEditing={mockToggleIsEditing} />);
+    // act
+    const errorMsg = screen.getByTestId("errorMsg");
     // assert
     expect(errorMsg).toHaveTextContent("Failed to update todo");
-    expect(updateTodoMock).toHaveBeenCalledOnce();
   });
 });

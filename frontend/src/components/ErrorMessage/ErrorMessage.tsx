@@ -21,7 +21,7 @@ export default function ErrorMessage({ msg }: ErrorMessageProps) {
   }
 
   return (
-    <p className={classes.errorMsg} data-testid="errorMessage">
+    <p className={classes.errorMsg} data-testid="errorMsg">
       {printMsg}
     </p>
   );

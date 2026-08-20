@@ -9,7 +9,6 @@ import userEvent from "@testing-library/user-event";
 vi.mock("../MultiFieldForm/MultiFieldForm", () => ({
   default: vi.fn(
     ({ formMethods, onSubmit, handleDelete, formText, errorMsg }) => {
-      const { ref, ...nameRegister } = formMethods.register("name");
       return (
         <div>
           <div>{formText.inputPlaceholder}</div>
@@ -17,45 +16,15 @@ vi.mock("../MultiFieldForm/MultiFieldForm", () => ({
           <div data-testid="errorMsg">{errorMsg}</div>
           <div>{formText.btn}</div>
           <button
-            data-testid="add-values-btn"
+            data-testid="update-btn"
             onClick={() => {
-              formMethods.setValue("name", "Test todo");
-              formMethods.setValue("categoryId", 1);
-              formMethods.handleSubmit(onSubmit)();
-              // onSubmit({ name: "Test todo", categoryId: 1 });
+              onSubmit({ name: "Test todo", categoryId: 1 });
             }}
           >
             Update
           </button>
           <button
-            data-testid="submit-nocat-btn"
-            onClick={() => {
-              formMethods.setValue("name", "test");
-              formMethods.handleSubmit(onSubmit)();
-            }}
-          >
-            Submit no-cat
-          </button>
-          <button
-            data-testid="submit-noname-btn"
-            onClick={() => {
-              formMethods.setValue("categoryId", 1);
-              formMethods.handleSubmit(onSubmit)();
-            }}
-          >
-            Submit blank name
-          </button>
-          <button
-            data-testid="submit-emptyname-btn"
-            onClick={() => {
-              formMethods.setValue("name", "    ");
-              formMethods.setValue("categoryId", 1);
-              formMethods.handleSubmit(onSubmit)();
-            }}
-          >
-            Submit empty name
-          </button>
-          <button
+            data-testid="delete-btn"
             onClick={() => {
               handleDelete(1);
             }}
@@ -64,8 +33,9 @@ vi.mock("../MultiFieldForm/MultiFieldForm", () => ({
           </button>
           <input
             data-testid="input"
-            {...nameRegister}
-            ref={ref}
+            {...formMethods.register("name")}
+            // {...nameRegister}
+            // ref={ref}
             value={formMethods.watch("name") || ""}
           />
         </div>
@@ -128,7 +98,7 @@ describe("EditCategory", () => {
     const user = userEvent.setup();
     render(<EditCategory />);
     // act
-    const updateBtn = screen.getByTestId("add-values-btn");
+    const updateBtn = screen.getByTestId("update-btn");
     await user.click(updateBtn);
     // assert
     expect(mockUpdateMutate).toHaveBeenCalledOnce();
@@ -138,67 +108,12 @@ describe("EditCategory", () => {
     );
   });
 
-  it("Should pass error message when onUpdateSubmit called in child form with no selected category", async () => {
+  it("Should reset the child form state onSuccess of updating a category", async () => {
     // arrange
     const user = userEvent.setup();
     render(<EditCategory />);
     // act
-    const updateBtn = screen.getByTestId("submit-nocat-btn");
-    const errorMsg = screen.getByTestId("errorMsg");
-    await user.click(updateBtn);
-    // assert
-    expect(mockUpdateMutate).not.toHaveBeenCalled();
-    expect(errorMsg).toHaveTextContent("Must select a category");
-  });
-
-  it("Should pass error message when onUpdateSubmit called in child form with no name value", async () => {
-    // arrange
-    const user = userEvent.setup();
-    render(<EditCategory />);
-    // act
-    const updateBtn = screen.getByTestId("submit-noname-btn");
-    const errorMsg = screen.getByTestId("errorMsg");
-    await user.click(updateBtn);
-    // assert
-    expect(mockUpdateMutate).not.toHaveBeenCalled();
-    expect(errorMsg).toHaveTextContent("Must enter a name");
-  });
-
-  it("Should pass error message when onUpdateSubmit called in child form with an empty name value", async () => {
-    // arrange
-    const user = userEvent.setup();
-    render(<EditCategory />);
-    // act
-    const updateBtn = screen.getByTestId("submit-emptyname-btn");
-    const errorMsg = screen.getByTestId("errorMsg");
-    await user.click(updateBtn);
-    // assert
-    expect(mockUpdateMutate).not.toHaveBeenCalled();
-    expect(errorMsg).toHaveTextContent("Must enter a name");
-  });
-
-  it("Should reset empty field error message when values are present in submitted form", async () => {
-    // arrange
-    const user = userEvent.setup();
-    render(<EditCategory />);
-    // act
-    const emptyUpdateBtn = screen.getByTestId("submit-nocat-btn");
-    const successfulupdateBtn = screen.getByTestId("add-values-btn");
-    const errorMsg = screen.getByTestId("errorMsg");
-    await user.click(emptyUpdateBtn);
-    expect(mockUpdateMutate).not.toHaveBeenCalled();
-    expect(errorMsg).toHaveTextContent("Must select a category");
-    // assert
-    await user.click(successfulupdateBtn);
-    expect(errorMsg).toHaveTextContent("");
-  });
-
-  it("Should reset the child form onSuccess of updating a category", async () => {
-    // arrange
-    const user = userEvent.setup();
-    render(<EditCategory />);
-    // act
-    const updateBtn = screen.getByRole("button", { name: "Update" });
+    const updateBtn = screen.getByTestId("update-btn");
     const input = screen.getByTestId("input");
     expect(input).toHaveValue("");
     await user.type(input, "Hello");
@@ -211,7 +126,7 @@ describe("EditCategory", () => {
     });
   });
 
-  it("Should call deleteCategory when the child calls handleDelete", async () => {
+  it("Should call deleteCategory when the handleDelete is invoked", async () => {
     // arrange
     const user = userEvent.setup();
     render(<EditCategory />);
@@ -223,61 +138,43 @@ describe("EditCategory", () => {
     expect(mockDeleteMutate).toHaveBeenCalledWith(1);
   });
 
-  it("Should render updateCategory error when error updating category", async () => {
-    const user = userEvent.setup();
-    const updateCategoryMock = vi.fn();
-    vi.mocked(useUpdateCategory).mockReturnValue({
-      mutate: updateCategoryMock,
+  it("Should display mutation error when updating fails", async () => {
+    vi.mocked(useDeleteCategory).mockReturnValue({
+      mutate: mockDeleteMutate,
       isError: false,
       error: null,
       isPending: false,
     } as any);
-
-    const { rerender } = render(<EditCategory />);
-
-    // act
-    const updateBtn = screen.getByRole("button", { name: "Update" });
-    await user.click(updateBtn);
-    expect(updateCategoryMock).toHaveBeenCalledOnce();
-
-    vi.mocked(useUpdateCategory).mockReturnValueOnce({
-      mutate: updateCategoryMock,
+    vi.mocked(useUpdateCategory).mockReturnValue({
+      mutate: vi.fn(),
       isError: true,
-      error: new Error("Failed to update category"),
+      error: { message: "Failed to update category" },
       isPending: false,
     } as any);
-    rerender(<EditCategory />);
+    render(<EditCategory />);
     // assert
-    expect(screen.getByText("Failed to update category"));
-    expect(updateCategoryMock).toHaveBeenCalledOnce();
+    expect(screen.getByTestId("errorMsg")).toHaveTextContent(
+      "Failed to update category",
+    );
   });
 
-  it("Should render deleteCategory error when error deleting category", async () => {
-    const user = userEvent.setup();
-    const deleteCategoryMock = vi.fn();
-    vi.mocked(useDeleteCategory).mockReturnValue({
-      mutate: deleteCategoryMock,
+  it("Should display mutation error when deleting fails", async () => {
+    vi.mocked(useUpdateCategory).mockReturnValue({
+      mutate: mockUpdateMutate,
       isError: false,
       error: null,
       isPending: false,
     } as any);
-
-    const { rerender } = render(<EditCategory />);
-
-    // act
-    const deleteBtn = screen.getByRole("button", { name: "Delete" });
-    await user.click(deleteBtn);
-    expect(deleteCategoryMock).toHaveBeenCalledOnce();
-
-    vi.mocked(useDeleteCategory).mockReturnValueOnce({
-      mutate: deleteCategoryMock,
+    vi.mocked(useDeleteCategory).mockReturnValue({
+      mutate: vi.fn(),
       isError: true,
-      error: new Error("Failed to delete category"),
+      error: { message: "Failed to delete category" },
       isPending: false,
     } as any);
-    rerender(<EditCategory />);
+    render(<EditCategory />);
     // assert
-    expect(screen.getByText("Failed to delete category"));
-    expect(deleteCategoryMock).toHaveBeenCalledOnce();
+    expect(screen.getByTestId("errorMsg")).toHaveTextContent(
+      "Failed to delete category",
+    );
   });
 });

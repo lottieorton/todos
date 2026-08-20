@@ -4,12 +4,7 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from "../../hooks/useCategories";
-import { useState } from "react";
-
-interface FormData {
-  name: string;
-  categoryId: number;
-}
+import { type MultiFieldFormData } from "../../interfaces/MultiFieldFormData";
 
 export default function EditCategory() {
   const {
@@ -24,28 +19,19 @@ export default function EditCategory() {
     error: categoriesDeleteError,
   } = useDeleteCategory();
 
-  const formMethods = useForm<FormData>();
+  const formMethods = useForm<MultiFieldFormData>();
 
-  const [formError, setFormError] = useState<string | null>(null);
+  const onUpdateSubmit: SubmitHandler<MultiFieldFormData> = (d): void => {
+    const data = {
+      id: d.categoryId,
+      name: d.name,
+    };
 
-  const onUpdateSubmit: SubmitHandler<FormData, void> = (d): void => {
-    if (!d.name || d.name.trim() === "") {
-      setFormError("Must enter a name");
-    } else if (!d.categoryId) {
-      setFormError("Must select a category");
-    } else if (d.name && d.categoryId) {
-      const data = {
-        id: d.categoryId,
-        name: d.name,
-      };
-      setFormError(null);
-
-      updateCategory(data, {
-        onSuccess: () => {
-          formMethods.reset();
-        },
-      });
-    }
+    updateCategory(data, {
+      onSuccess: () => {
+        formMethods.reset();
+      },
+    });
   };
 
   const handleDelete = (id: number) => {
@@ -59,9 +45,8 @@ export default function EditCategory() {
   } as const;
 
   const errorMsg =
-    (isCategoriesUpdateError && categoriesUpdateError.message) ||
-    (isCategoriesDeleteError && categoriesDeleteError.message) ||
-    formError ||
+    (isCategoriesUpdateError && categoriesUpdateError?.message) ||
+    (isCategoriesDeleteError && categoriesDeleteError?.message) ||
     null;
 
   return (
