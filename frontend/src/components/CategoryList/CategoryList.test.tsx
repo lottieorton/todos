@@ -7,9 +7,9 @@ import type { Todo } from "../../interfaces/Todo";
 
 vi.mock("../buttons/LargeButton/LargeButton", () => {
   return {
-    default: vi.fn(({ isSelected, children }) => {
+    default: vi.fn(({ isSelected, children, handleClick }) => {
       return (
-        <button data-testid={`form-btn`} type="submit">
+        <button data-testid={`form-btn`} type="submit" onClick={handleClick}>
           <div data-testid="children">
             {children} {String(isSelected)}
           </div>

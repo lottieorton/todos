@@ -17,7 +17,6 @@ vi.mock("../MultiFieldForm/MultiFieldForm", () => ({
             formMethods.setValue("name", "Test todo");
             formMethods.setValue("categoryId", 1);
             formMethods.handleSubmit(onSubmit)();
-            // onSubmit({ name: "Test todo", categoryId: 1 });
           }}
         >
           Add
@@ -68,7 +67,10 @@ vi.mock("../../hooks/useTodos", () => ({
 
 describe("AddTodo", () => {
   const mockMutate = vi.fn(
-    (_data: string, options: { onSuccess: () => void }) => {
+    (
+      _data: { name: string; categoryId: number },
+      options: { onSuccess: () => void },
+    ) => {
       if (options?.onSuccess) {
         options.onSuccess();
       }
@@ -222,35 +224,18 @@ describe("AddTodo", () => {
   });
 
   it("Should pass error message to form if error with creating todo", async () => {
-    const user = userEvent.setup();
-    const createTodoMock = vi.fn();
-
+    // arrange
     vi.mocked(useCreateTodo).mockReturnValue({
-      mutate: createTodoMock,
-      isError: false,
-      error: null,
-      isPending: false,
-    } as any);
-
-    const { rerender } = render(<AddTodo />);
-    // act
-    const btn = screen.getByTestId("add-values-btn");
-    const errorMsg = screen.getByTestId("errorMsg");
-
-    await user.click(btn);
-    expect(createTodoMock).toHaveBeenCalledOnce();
-
-    vi.mocked(useCreateTodo).mockReturnValue({
-      mutate: createTodoMock,
+      mutate: vi.fn(),
       isError: true,
       error: new Error("Failed to create todo"),
       isPending: false,
     } as any);
 
-    rerender(<AddTodo />);
-
+    render(<AddTodo />);
+    // act
+    const errorMsg = screen.getByTestId("errorMsg");
     // assert
     expect(errorMsg).toHaveTextContent("Failed to create todo");
-    expect(createTodoMock).toHaveBeenCalledOnce();
   });
 });

@@ -17,7 +17,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long>{
     List<Todo> findAllWithCategory();
 
     @EntityGraph(attributePaths = "category")
-    @Query("SELECT t FROM Todo t WHERE t.category.id = :categoryId")
+    @Query("SELECT t FROM Todo t WHERE t.category.id = :categoryId AND t.isArchived = false")
     List<Todo> findByCategoryId(@Param("categoryId") Long categoryId);
     
 }

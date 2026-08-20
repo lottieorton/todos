@@ -5,7 +5,11 @@ import userEvent from "@testing-library/user-event";
 describe("CheckButton", () => {
   const mockToggleComplete = vi.fn();
 
-  it("Should render", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("Should render with prop value", () => {
     // arrange
     render(
       <CheckButton isComplete={true} toggleComplete={mockToggleComplete} />,
@@ -14,7 +18,19 @@ describe("CheckButton", () => {
     const btn = screen.getByRole("button");
     // assert
     expect(btn).toBeInTheDocument();
-    expect(btn).toHaveAccessibleName("Check");
+    expect(btn).toHaveAccessibleName("Mark as incomplete");
+  });
+
+  it("Should render with false isComplete value", () => {
+    // arrange
+    render(
+      <CheckButton isComplete={false} toggleComplete={mockToggleComplete} />,
+    );
+    // act
+    const btn = screen.getByRole("button");
+    // assert
+    expect(btn).toBeInTheDocument();
+    expect(btn).toHaveAccessibleName("Mark as complete");
   });
 
   it("Should call toggleComplete when clicked", async () => {

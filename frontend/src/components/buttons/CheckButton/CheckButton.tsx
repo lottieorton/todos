@@ -13,7 +13,7 @@ export default function CheckButton({
     <button
       onClick={toggleComplete}
       className={`${classes.btn} ${isComplete && classes.btn__checked}`}
-      aria-label="Check"
+      aria-label={`Mark as ${isComplete ? "incomplete" : "complete"}`}
     >
       <i className="fa-solid fa-check"></i>
     </button>
