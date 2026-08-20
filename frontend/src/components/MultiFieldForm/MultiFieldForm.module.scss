@@ -18,8 +18,10 @@
   color: c.$main-text;
   font-size: 0.9em;
   font-weight: 600;
-  background: none;
-  border: none;
+  background-color: c.$field-bg;
+  border-radius: 10px;
+  border: c.$border;
+  padding: 5px;
 }
 
 .todo {
