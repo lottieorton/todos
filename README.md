@@ -85,7 +85,7 @@ This application is a full-stack task management system designed to help users o
 
 ---
 
-## Environment Variables
+### Environment Variables
 
 To run this application locally, you will need to set up the following environment variables. You can export them in your terminal, define them in your IDE run configuration, or store them in a `.env` file (if using a local environment loader).
 

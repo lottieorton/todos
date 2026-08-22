@@ -6,9 +6,11 @@ import {
 } from "../errors/errors";
 import type { Todo } from "../interfaces/Todo";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8082";
+
 export const getAllTodos = async (categoryId?: number): Promise<Todo[]> => {
   const categoryFilter = categoryId ? `?category=${categoryId}` : "";
-  const response = await fetch("http://localhost:8080/todos" + categoryFilter);
+  const response = await fetch(`${API_URL}/todos${categoryFilter}`);
   if (!response.ok) {
     throw new FetchError("Failed to fetch todos");
   }
@@ -19,7 +21,7 @@ export const createTodo = async (
   name: string,
   categoryId: number,
 ): Promise<Todo> => {
-  const response = await fetch("http://localhost:8080/todos", {
+  const response = await fetch(`${API_URL}/todos`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -41,7 +43,7 @@ export const updateTodo = async (
   categoryId?: number,
   isComplete?: boolean,
 ): Promise<Todo> => {
-  const response = await fetch(`http://localhost:8080/todos/${id}`, {
+  const response = await fetch(`${API_URL}/todos/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -58,7 +60,7 @@ export const updateTodo = async (
 };
 
 export const deleteTodo = async (id: number): Promise<boolean> => {
-  const response = await fetch(`http://localhost:8080/todos/${id}`, {
+  const response = await fetch(`${API_URL}/todos/${id}`, {
     method: "DELETE",
   });
   if (!response.ok) {

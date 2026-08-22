@@ -6,8 +6,10 @@ import {
 } from "../errors/errors";
 import type { Category } from "../interfaces/Category";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 export const getAllCategories = async (): Promise<Category[]> => {
-  const response = await fetch("http://localhost:8080/categories");
+  const response = await fetch(`${API_URL}/categories`);
   if (!response.ok) {
     throw new FetchError("Failed to fetch categories");
   }
@@ -15,7 +17,7 @@ export const getAllCategories = async (): Promise<Category[]> => {
 };
 
 export const createCategory = async (name: string): Promise<Category> => {
-  const response = await fetch("http://localhost:8080/categories", {
+  const response = await fetch(`${API_URL}/categories`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -38,7 +40,7 @@ export const updateCategory = async (
   id: number,
   name: string,
 ): Promise<Category> => {
-  const response = await fetch(`http://localhost:8080/categories/${id}`, {
+  const response = await fetch(`${API_URL}/categories/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -55,7 +57,7 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (id: number): Promise<boolean> => {
-  const response = await fetch(`http://localhost:8080/categories/${id}`, {
+  const response = await fetch(`${API_URL}/categories/${id}`, {
     method: "DELETE",
   });
   if (!response.ok) {
