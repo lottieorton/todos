@@ -6,7 +6,7 @@ import {
 } from "../errors/errors";
 import type { Todo } from "../interfaces/Todo";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8082";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 export const getAllTodos = async (categoryId?: number): Promise<Todo[]> => {
   const categoryFilter = categoryId ? `?category=${categoryId}` : "";
