@@ -133,8 +133,8 @@ describe("Todo", () => {
 
   it("Should render errorMessage when updateTodo errors after click", async () => {
     // arrange
-    vi.mocked(useDeleteTodo).mockReturnValue({
-      mutate: mockDeleteMutate,
+    vi.mocked(useUpdateTodo).mockReturnValue({
+      mutate: mockUpdateMutate,
       isError: true,
       error: new Error("Failed to delete todo"),
       isPending: false,

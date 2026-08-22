@@ -85,6 +85,32 @@ This application is a full-stack task management system designed to help users o
 
 ---
 
+### Environment Variables
+
+To run this application locally, you will need to set up the following environment variables. You can export them in your terminal, define them in your IDE run configuration, or store them in a `.env` file (if using a local environment loader).
+
+| Variable         | Description                  | Example / Default       |
+| :--------------- | :--------------------------- | :---------------------- |
+| `DB_HOST`        | Database host address        | `localhost`             |
+| `DB_PORT`        | Database port number         | `3306` (MySQL)          |
+| `DB_USER`        | Database connection username | `postgres` / `root`     |
+| `DB_PASSWORD`    | Database connection password | `your_secure_password`  |
+| `DB_NAME`        | Name of the database         | `todo_db`               |
+| `SPRING_PROFILE` | Active Spring profile        | `dev` / `prod` / `test` |
+
+### Example `.env` file
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=secret
+DB_NAME=todos_db
+SPRING_PROFILE=dev
+```
+
+---
+
 ## Design Goals / Approach
 
 - **Mobile-First Responsive Design:** Styled to prioritise clean layout and user experience on smaller screens before expanding to desktop views.
@@ -172,6 +198,10 @@ This application is a full-stack task management system designed to help users o
 - Refactored and enhanced category list button styling
 - Implements category limit in backend service layer
 
+**20/08/2026 - Refactors Frontend Setup**
+
+- Refined some of the React component and test logic to be more streamlined.
+
 ---
 
 ## What did you struggle with?
@@ -192,3 +222,7 @@ This project is licensed under the [MIT License](LICENSE) - a standard open-sour
 
 - **Backend API:** Spring Boot REST API serving endpoints at `/todos` and `/categories`.
 - **Frontend Application:** React single-page application consuming the Spring Boot REST endpoints.
+
+```
+
+```

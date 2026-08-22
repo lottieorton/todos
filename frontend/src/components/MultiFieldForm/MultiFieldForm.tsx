@@ -28,20 +28,31 @@ export default function MultiFieldForm({
   errorMsg,
 }: MultiFieldFormProps) {
   const { categories, isCategoriesLoading } = useCategoryContext();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const { register, handleSubmit } = formMethods;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = formMethods;
 
   const handleDeleteClick = () => {
     const selectedCategory = formMethods.getValues("categoryId");
-    if (!selectedCategory) setErrorMessage("Must select a category");
-    if (selectedCategory && handleDelete) {
-      setErrorMessage(null);
+    if (!selectedCategory || Number.isNaN(selectedCategory)) {
+      setDeleteError("Must select a category");
+      return;
+    }
+    if (handleDelete) {
+      setDeleteError(null);
       handleDelete(selectedCategory);
     }
   };
 
-  const isActiveError = errorMessage || errorMsg;
+  const activeError =
+    errors.name?.message ||
+    errors.categoryId?.message ||
+    deleteError ||
+    errorMsg;
 
   return (
     <form
@@ -60,7 +71,13 @@ export default function MultiFieldForm({
             aria-label="categoryIcon"
           ></i>
         )}
-        <select className={classes.category} {...register("categoryId")}>
+        <select
+          className={classes.category}
+          {...register("categoryId", {
+            required: "Must select a category",
+            valueAsNumber: true,
+          })}
+        >
           <option value="">{categorySelection}</option>
           {categories.map((c) => {
             return (
@@ -84,7 +101,11 @@ export default function MultiFieldForm({
           type="text"
           className={classes.inputField}
           placeholder={inputPlaceholder}
-          {...register("name")}
+          {...register("name", {
+            required: "Must enter a name",
+            validate: (value: string) =>
+              value.trim().length > 0 || "Must enter a name",
+          })}
         />
         <div className={classes.btnContainer}>
           <FormButton isRounded={isBtnRounded}>
@@ -100,7 +121,7 @@ export default function MultiFieldForm({
           )}
         </div>
       </div>
-      {isActiveError && <ErrorMessage msg={isActiveError} />}
+      {activeError && <ErrorMessage msg={activeError} />}
     </form>
   );
 }

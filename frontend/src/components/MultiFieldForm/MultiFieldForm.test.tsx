@@ -8,9 +8,9 @@ import { useCategoryContext } from "../../context/CategoryContext";
 
 vi.mock("../buttons/FormButton/FormButton", () => {
   return {
-    default: vi.fn(({ children, isRounded }) => {
+    default: vi.fn(({ children, isRounded, type = "submit" }) => {
       return (
-        <button data-testid="form-btn" type="submit">
+        <button data-testid="form-btn" type={type}>
           {"Rounded " + isRounded + " "}
           <div data-testid="children">{children}</div>
         </button>
@@ -94,6 +94,7 @@ describe("MultiFieldForm", () => {
     expect(dropdownList[1]).toHaveTextContent("Cleaning");
     expect(dropdownList[2]).toHaveValue("2");
     expect(dropdownList[2]).toHaveTextContent("Fitness");
+    expect(screen.queryByTestId("errorMsg")).not.toBeInTheDocument();
   });
 
   it("Should render form button as round when isRounded is true", () => {
@@ -119,7 +120,7 @@ describe("MultiFieldForm", () => {
     expect(addBtn).toHaveTextContent("Rounded true");
   });
 
-  it("Should render edit form button when btn = edit", () => {
+  it("Should render edit form button when btn equals edit", () => {
     // arrange
     const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockFormText = {
@@ -143,7 +144,7 @@ describe("MultiFieldForm", () => {
     expect(update).toHaveTextContent("Update");
   });
 
-  it("Should render edit icon, edit form and delete buttons when btn = editDelete", () => {
+  it("Should render edit icon, edit form and delete buttons when btn equals editDelete", () => {
     // arrange
     const { result } = renderHook(() => useForm<MultiFieldFormData>());
     const mockhandleDelete = vi.fn();
@@ -214,7 +215,7 @@ describe("MultiFieldForm", () => {
     expect(errorMessage).toHaveTextContent("Not Found");
   });
 
-  it("Should call onSubmit prop when submit form", async () => {
+  it("Should call onSubmit prop when submit form with filled in fields", async () => {
     // arrange
     const user = userEvent.setup();
     const { result } = renderHook(() => useForm<MultiFieldFormData>());
@@ -235,6 +236,85 @@ describe("MultiFieldForm", () => {
     await user.click(btn);
     // assert
     expect(mockOnSubmit).toHaveBeenCalledOnce();
+  });
+
+  it("Should render error message when submit form without a name value", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const TestWrapper = () => {
+      const formMethods = useForm<MultiFieldFormData>();
+      return (
+        <MultiFieldForm
+          formMethods={formMethods}
+          onSubmit={mockOnSubmit}
+          formText={mockFormText}
+        />
+      );
+    };
+    render(<TestWrapper />);
+    // act
+    const btn = screen.getByTestId("form-btn");
+    const dropdown = screen.getByRole("combobox");
+    await user.selectOptions(dropdown, "2");
+    await user.click(btn);
+    const errorMsg = await screen.findByTestId("errorMsg");
+    // assert
+    expect(errorMsg).toHaveTextContent("Must enter a name");
+    expect(mockOnSubmit).not.toHaveBeenCalled();
+  });
+
+  it("Should render error message when submit form with an empty name value", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const TestWrapper = () => {
+      const formMethods = useForm<MultiFieldFormData>();
+      return (
+        <MultiFieldForm
+          formMethods={formMethods}
+          onSubmit={mockOnSubmit}
+          formText={mockFormText}
+        />
+      );
+    };
+    render(<TestWrapper />);
+    // act
+    const btn = screen.getByTestId("form-btn");
+    const nameInput =
+      screen.getByPlaceholderText<HTMLInputElement>("Add a name...");
+    const dropdown = screen.getByRole("combobox");
+    await user.selectOptions(dropdown, "2");
+    await user.type(nameInput, "    ");
+    await user.click(btn);
+    const errorMsg = await screen.findByTestId("errorMsg");
+    // assert
+    expect(errorMsg).toHaveTextContent("Must enter a name");
+    expect(mockOnSubmit).not.toHaveBeenCalled();
+  });
+
+  it("Should render error message when submit form without a category selected", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const TestWrapper = () => {
+      const formMethods = useForm<MultiFieldFormData>();
+      return (
+        <MultiFieldForm
+          formMethods={formMethods}
+          onSubmit={mockOnSubmit}
+          formText={mockFormText}
+        />
+      );
+    };
+    render(<TestWrapper />);
+    // act
+    const btn = screen.getByTestId("form-btn");
+    const nameInput =
+      screen.getByPlaceholderText<HTMLInputElement>("Add a name...");
+    await user.type(nameInput, "Run a 5km");
+    await user.click(btn);
+    const errorMsg = await screen.findByTestId("errorMsg");
+    // assert
+    expect(errorMsg).toHaveTextContent("Must select a category");
+    expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
   it("Should call parents handleDelete when delete button clicked with selected category", async () => {
@@ -263,6 +343,33 @@ describe("MultiFieldForm", () => {
     await user.click(deleteBtn);
     // assert
     expect(mockhandleDelete).toHaveBeenCalledOnce();
+  });
+
+  it("Shouldn't call parents handleDelete when delete button clicked if it's not passed in", async () => {
+    // arrange
+    const user = userEvent.setup();
+    const { result } = renderHook(() => useForm<MultiFieldFormData>());
+    const mockhandleDelete = vi.fn();
+
+    const mockFormText = {
+      categorySelection: "Select a category",
+      inputPlaceholder: "Add a name...",
+      btn: "editDelete",
+    } as const;
+    render(
+      <MultiFieldForm
+        formMethods={result.current}
+        onSubmit={mockOnSubmit}
+        formText={mockFormText}
+      />,
+    );
+    // act
+    const deleteBtn = screen.getByTestId("delete-btn");
+    const dropdown = screen.getByRole("combobox");
+    await user.selectOptions(dropdown, "2");
+    await user.click(deleteBtn);
+    // assert
+    expect(mockhandleDelete).not.toHaveBeenCalled();
   });
 
   it("Should render error message when delete button clicked without category selected", async () => {

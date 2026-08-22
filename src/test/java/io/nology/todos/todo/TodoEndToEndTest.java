@@ -85,7 +85,7 @@ public class TodoEndToEndTest {
     }
 
     @Test
-    public void getAllTodos_CategoryIdInDB_ReturnsOKAndArrayOfFilteredTodos() {
+    public void getAllTodos_CategoryIdInDB_ReturnsOKAndArrayOfNonArchivedFilteredTodos() {
         // arrange
         Category category1 = new Category();
         category1.setName("Test category 1");
@@ -102,6 +102,11 @@ public class TodoEndToEndTest {
         todo2.setName("Test todo 2");
         todo2.setCategory(category2);
         todoRepo.saveAndFlush(todo2);
+        Todo todo3 = new Todo();
+        todo3.setName("Test todo 3");
+        todo3.setCategory(category1);
+        todo3.setArchived(true);
+        todoRepo.saveAndFlush(todo3);
         // act
         given().when().get("/todos?category=" + category1Id)
         // assert

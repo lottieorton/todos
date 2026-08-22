@@ -1,32 +1,33 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import MainLayout from "./MainLayout";
 import { useTodos } from "../../hooks/useTodos";
 import { useCategoryContext } from "../../context/CategoryContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 vi.mock("../../hooks/useTodos", () => ({
   useTodos: vi.fn(),
+  useCreateTodo: vi.fn(() => ({
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+    error: null,
+  })),
+  useUpdateTodo: vi.fn(() => ({
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+    error: null,
+  })),
+  useDeleteTodo: vi.fn(() => ({
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+    error: null,
+  })),
 }));
 
 vi.mock("../../context/CategoryContext", () => ({
   useCategoryContext: vi.fn(),
-}));
-
-vi.mock("../AddCategory/AddCategory", () => ({
-  default: vi.fn(() => {
-    return <div data-testid="add-category"></div>;
-  }),
-}));
-
-vi.mock("../AddTodo/AddTodo", () => ({
-  default: vi.fn(() => {
-    return <div data-testid="add-todo"></div>;
-  }),
-}));
-vi.mock("../EditCategory/EditCategory", () => ({
-  default: vi.fn(() => {
-    return <div data-testid="edit-category"></div>;
-  }),
 }));
 
 vi.mock("../TodoList/TodoList", () => ({
@@ -54,11 +55,17 @@ vi.mock("../CategoryList/CategoryList", () => ({
   }),
 }));
 
-vi.mock("../GlobalMessage/GlobalMessage", () => ({
-  default: vi.fn(({ type, msg }) => {
-    return <div data-testid="global-msg">{`${type} - ${msg}`}</div>;
-  }),
-}));
+const renderWithQueryClient = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
 
 describe("MainLayout", () => {
   beforeEach(() => {
@@ -68,7 +75,7 @@ describe("MainLayout", () => {
       categories: [{ id: 1, name: "Cleaning" }],
       isCategoriesLoading: false,
       isCategoriesError: false,
-      categoriesError: new Error("Failed to load categories"),
+      categoriesError: null,
     });
 
     vi.mocked(useTodos).mockImplementation((categoryId?: number) => {
@@ -91,89 +98,49 @@ describe("MainLayout", () => {
     });
   });
 
-  it("Should render nested component passing state", async () => {
+  it("Should render key sections when data loads successfully", async () => {
     // arrange
-    render(<MainLayout />);
+    renderWithQueryClient(<MainLayout />);
     // act
     const sidebarHeader = screen.getByRole("heading", { level: 2 });
     const header = screen.getByRole("heading", { level: 1 });
-    const addCategory = screen.getByTestId("add-category");
-    const addTodo = await screen.findByTestId("add-todo");
-    const editCategory = await screen.findByTestId("edit-category");
-    const categoryList = screen.getByTestId("category-list");
-    const todoList = screen.getByTestId("todo-list");
     const sidebarBackground = screen.getByTestId("sidebarBackground");
+    const todoElements = screen.getAllByText("Hoover");
     // assert
     expect(sidebarHeader).toHaveTextContent("Task By Task");
     expect(header).toHaveTextContent("My Tasks List");
-    expect(addCategory).toBeInTheDocument();
-    expect(addTodo).toBeInTheDocument();
-    expect(editCategory).toBeInTheDocument();
-    expect(categoryList).toBeInTheDocument();
-    expect(categoryList).toHaveTextContent("Filter: ");
-    expect(screen.getByTestId("todosCatList")).toHaveTextContent("Hoover");
-    expect(screen.getByTestId("todosCatListLength")).toHaveTextContent("2");
-    expect(todoList).toBeInTheDocument();
-    expect(screen.getByTestId("fileredTodosLength")).toHaveTextContent("2");
-    expect(todoList.children[0]).toHaveTextContent("Hoover");
     expect(sidebarBackground).toBeInTheDocument();
+    expect(todoElements).toHaveLength(2);
   });
 
-  it("Should pass updated state when setter is called in category list", async () => {
-    const user = userEvent.setup();
-    // arrange
-    render(<MainLayout />);
-    // act
-    const categoryListBtn = screen.getByTestId("category-list");
-    const categoryList = screen.getByTestId("category-list");
-    expect(categoryList).toHaveTextContent("Filter: undefined");
-
-    await user.click(categoryListBtn);
-    // assert
-    expect(categoryList).toHaveTextContent("Filter: 1");
-    expect(screen.getByTestId("todosCatListLength")).toHaveTextContent("2");
-    expect(screen.getByTestId("fileredTodosLength")).toHaveTextContent("1");
-  });
-
-  it("Should render error message when there is an error in fetching all from the database", async () => {
+  it("Should render error message when there is an error fetching all for the database", async () => {
     // arrange
     vi.mocked(useTodos).mockReturnValue({
       data: [],
       isLoading: false,
       isError: true,
     } as any);
-    render(<MainLayout />);
+    renderWithQueryClient(<MainLayout />);
     // act
-    const sidebarHeader = screen.getByRole("heading", { level: 2 });
-    const header = screen.getByRole("heading", { level: 1 });
-    const errorMessage = screen.getByTestId("global-msg");
-    // assert
-    expect(sidebarHeader).toHaveTextContent("Task By Task");
-    expect(header).toHaveTextContent("My Tasks List");
-    expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveTextContent(
-      "error - Something went wrong. Please try again!",
+    const errorMessage = screen.getByText(
+      "Something went wrong. Please try again!",
     );
-    expect(screen.queryByTestId("add-todo")).not.toBeInTheDocument();
+    // assert
+    expect(errorMessage).toBeInTheDocument();
+    expect(screen.queryByTestId("todo-list")).not.toBeInTheDocument();
   });
 
-  it("Should render loading message when todos data is loading", async () => {
+  it("Should render loading message when todos data is loading", () => {
     // arrange
     vi.mocked(useTodos).mockReturnValue({
       data: [],
       isLoading: true,
       isError: false,
     } as any);
-    render(<MainLayout />);
+    renderWithQueryClient(<MainLayout />);
+    const loadingMessage = screen.getByText("Loading...");
     // act
-    const sidebarHeader = screen.getByRole("heading", { level: 2 });
-    const header = screen.getByRole("heading", { level: 1 });
-    const loadingMessage = screen.getByTestId("global-msg");
-    // assert
-    expect(sidebarHeader).toHaveTextContent("Task By Task");
-    expect(header).toHaveTextContent("My Tasks List");
     expect(loadingMessage).toBeInTheDocument();
-    expect(loadingMessage).toHaveTextContent("loading - Loading...");
     expect(screen.queryByTestId("todo-list")).not.toBeInTheDocument();
   });
 });

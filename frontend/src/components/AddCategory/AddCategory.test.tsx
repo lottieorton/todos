@@ -74,6 +74,9 @@ describe("AddCategory", () => {
     await user.click(btn);
     // assert
     expect(mockMutate).toHaveBeenCalledOnce();
+    expect(mockMutate).toHaveBeenCalledWith("New category", {
+      onSuccess: expect.any(Function),
+    });
     await waitFor(() => {
       expect(input.value).toBe("");
     });
@@ -87,22 +90,12 @@ describe("AddCategory", () => {
       error: new Error("Failed to create category"),
       isPending: false,
     } as any);
-
-    render(<AddCategory />);
-    const user = userEvent.setup();
     // act
-    const input =
-      screen.getByPlaceholderText<HTMLInputElement>("Add a category...");
-    const btn = screen.getByTestId("add-btn");
-    await user.type(input, "New category");
-    expect(input.value).toBe("New category");
-    await user.click(btn);
+    render(<AddCategory />);
     // assert
-    await waitFor(() => {
-      expect(screen.getByTestId("errorMsg")).toBeInTheDocument();
-      expect(screen.getByTestId("errorMsg")).toHaveTextContent(
-        "Failed to create category",
-      );
-    });
+    expect(screen.getByTestId("errorMsg")).toBeInTheDocument();
+    expect(screen.getByTestId("errorMsg")).toHaveTextContent(
+      "Failed to create category",
+    );
   });
 });

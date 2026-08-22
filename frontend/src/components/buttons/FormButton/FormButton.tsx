@@ -12,12 +12,10 @@ export default function FormButton({
   isRounded = false,
   isSelected = false,
 }: ButtonProps) {
+  const classNames = `${classes.btn} ${isRounded ? classes.rounded : ""} ${isSelected ? classes.selected : ""}`;
+
   return (
-    <button
-      type="submit"
-      className={`${classes.btn} ${isRounded && classes.rounded} ${isSelected && classes.selected}`}
-      aria-label="Submit"
-    >
+    <button type="submit" className={classNames} aria-label="Submit">
       {children}
     </button>
   );
