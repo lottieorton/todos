@@ -1,4 +1,6 @@
 # Full-Stack Todo Application
+[![Java CI with Maven](https://github.com/lottieorton/todos/actions/workflows/maven.yml/badge.svg)](https://github.com/lottieorton/todos/actions/workflows/maven.yml)
+[![Node.js CI](https://github.com/lottieorton/todos/actions/workflows/node.js.yml/badge.svg)](https://github.com/lottieorton/todos/actions/workflows/node.js.yml)
 
 ## Demo & Snippets
 
