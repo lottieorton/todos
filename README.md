@@ -11,7 +11,7 @@
 <img
 src="./docs/images/mobile-screenshot.png"
 alt="Todo App Mobile interface"
-style="max-width: 600px; width: 100%;"
+width= "600px"
 />
 <img
 src="./docs/images/desktop-screenshot.png"
