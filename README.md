@@ -2,20 +2,21 @@
 
 ## Demo & Snippets
 
-- **Live Demo:** To be added
+- **Hosted Link:** https://todos-cyar.onrender.com
 - **App Preview:**
 
+<p align="center">
 <img
-src="./frontend/src/assets/mobile-screenshot.png"
+src="./docs/images/mobile-screenshot.png"
 alt="Todo App Mobile interface"
-width= "400px"
+style="max-width: 600px; width: 100%;"
 />
-
 <img
-src="./frontend/src/assets/desktop-screenshot.png"
+src="./docs/images/desktop-screenshot.png"
 alt="Todo App Desktop interface"
-width= "1000px"
+width= "100%"
 />
+</p>
 
 ---
 
@@ -28,7 +29,7 @@ This application is a full-stack task management system designed to help users o
 ### Tech Stack
 
 - **Frontend:** React, TypeScript, React Query (TanStack Query), React Hook Form, React Testing Library, SCSS.
-- **Backend:** Java, Spring Boot, Spring Data JPA, MySQL, OpenAPI/Swagger.
+- **Backend:** Java, Spring Boot, Spring Data JPA, PostgreSQL, OpenAPI/Swagger.
 - **Testing & Tools:** Vitest, REST Assured, Maven, Git, GitHub Actions.
 
 **Why this stack?**
@@ -36,6 +37,14 @@ This application is a full-stack task management system designed to help users o
 - **TypeScript & Java:** Provides strong end-to-end type safety, reducing runtime errors across the stack.
 - **Spring Boot:** Offers a robust, scalable backend framework with seamless database integration via JPA.
 - **React Query:** Simplifies asynchronous state management by handling cache invalidation and automatic refetching upon database mutations.
+
+### Database Schema
+
+<img
+src="./docs/images/ERD.png"
+alt="Database Entity Relationship Diagram"
+width= "100%"
+/>
 
 ---
 
@@ -45,7 +54,7 @@ This application is a full-stack task management system designed to help users o
 
 - Java JDK 17+
 - Node.js (v18+) & npm
-- MySQL Server running locally
+- PostgreSQL Server running locally
 
 ### Backend Setup
 
@@ -92,7 +101,7 @@ To run this application locally, you will need to set up the following environme
 | Variable         | Description                  | Example / Default       |
 | :--------------- | :--------------------------- | :---------------------- |
 | `DB_HOST`        | Database host address        | `localhost`             |
-| `DB_PORT`        | Database port number         | `3306` (MySQL)          |
+| `DB_PORT`        | Database port number         | `5432` (PostgreSQL)     |
 | `DB_USER`        | Database connection username | `postgres` / `root`     |
 | `DB_PASSWORD`    | Database connection password | `your_secure_password`  |
 | `DB_NAME`        | Name of the database         | `todo_db`               |
@@ -140,7 +149,6 @@ SPRING_PROFILE=dev
 
 ## Future Goals
 
-- **Live Demo Deployment:** Add a live demo of the application.
 - **Dynamic Completion Bar:** A progress bar that calculates and updates in real-time based on the percentage of completed tasks.
 - **Unique Category Constraints:** Add database and API-level unique name constraints for categories.
 
@@ -202,6 +210,11 @@ SPRING_PROFILE=dev
 
 - Refined some of the React component and test logic to be more streamlined.
 
+**23/08/2026 - Deploy set up on Render with PSQL configuration**
+
+- Refactored database setup to use PostgreSQL
+- Updated frontend and backend URL variables for Render hosted services
+
 ---
 
 ## What did you struggle with?
@@ -222,7 +235,3 @@ This project is licensed under the [MIT License](LICENSE) - a standard open-sour
 
 - **Backend API:** Spring Boot REST API serving endpoints at `/todos` and `/categories`.
 - **Frontend Application:** React single-page application consuming the Spring Boot REST endpoints.
-
-```
-
-```
